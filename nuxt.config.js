@@ -1,4 +1,12 @@
 export default {
+  serverMiddleware: [
+    // API middleware
+    '~/api/index.js',
+  ],
+  server: {
+    port: 8080, // default: 3000
+    // host: '0.0.0.0', // default: localhost
+  },
   /*
    ** Nuxt rendering mode
    ** See https://nuxtjs.org/api/configuration-mode
