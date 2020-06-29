@@ -7,7 +7,7 @@ module.exports = async (sequelize, DataTypes) => {
       workout_time: { type: DataTypes.DATE, allowNull: false },
       workout_location: { type: DataTypes.STRING, allowNull: false },
       workout_member: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 1,
       },
@@ -20,9 +20,10 @@ module.exports = async (sequelize, DataTypes) => {
       },
     },
     {
-      // Other model options go here
+      charset: 'utf8',
+      collate: 'utf8_unicode_ci',
     }
   )
-  await sequelize.sync()
+  await sequelize.sync({ alter: true })
   return model
 }

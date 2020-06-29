@@ -1,40 +1,34 @@
 <template>
-  <div class="container">영용스</div>
+  <div>
+    <b-row>
+      <card v-for="(item, index) in items" :key="index" :item="item"></card>
+    </b-row>
+    <b-navbar fixed="bottom">
+      <b-button block variant="primary" @click="createCard"
+        >크루 카드 만들기</b-button
+      >
+    </b-navbar>
+  </div>
 </template>
 
 <script>
-export default {};
+import axios from 'axios'
+import card from '../components/card'
+
+export default {
+  components: {
+    card,
+  },
+  async asyncData() {
+    const { data } = await axios.get(`http://localhost:8080/api/cards`)
+    return { items: data }
+  },
+  methods: {
+    createCard() {
+      this.$router.push('/createCard')
+    },
+  },
+}
 </script>
 
-<style>
-.container {
-  margin: 0 auto;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
-}
-</style>
+<style></style>
