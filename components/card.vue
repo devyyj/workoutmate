@@ -26,15 +26,13 @@
         <b-list-group-item
           >장소 : {{ item.workout_location }}</b-list-group-item
         >
-        <b-list-group-item>시간 : {{ item.workout_time }}</b-list-group-item>
+        <b-list-group-item>시간 : {{ createTime }}</b-list-group-item>
         <b-list-group-item
           >모집 인원 : {{ item.workout_member }}
         </b-list-group-item>
       </b-list-group>
 
       <b-card-body>
-        <!-- <a href="#" class="card-link">Card link</a>
-        <a href="#" class="card-link">Another link</a> -->
         <b-button variant="outline-primary">참여</b-button>
       </b-card-body>
 
@@ -45,6 +43,7 @@
 </template>
 
 <script>
+import m from 'moment'
 export default {
   name: 'Card',
   props: {
@@ -53,6 +52,11 @@ export default {
       default: () => {
         return {}
       },
+    },
+  },
+  computed: {
+    createTime() {
+      return m(this.item.workout_time).format('YYYY-MM-DD HH:mm:ss')
     },
   },
 }

@@ -98,17 +98,19 @@
 </template>
 
 <script>
+import m from 'moment'
 export default {
   data() {
     return {
       workout: {
+        user: '유저이름',
         content: '',
-        date: '2020-06-29',
-        time: '12:34:56',
+        date: m().format('YYYY-MM-DD'),
+        time: m().format('HH:mm:ss'),
         location: '',
         cost: 0,
         member: 1,
-        detail: '',
+        detail: [],
         type: '',
       },
       show: true,
@@ -116,8 +118,13 @@ export default {
   },
   methods: {
     onSubmit(evt) {
-      evt.preventDefault()
-      alert(JSON.stringify(this.workout))
+      try {
+        evt.preventDefault()
+        this.$axios.$post('/cards', this.workout)
+        this.$router.push('/')
+      } catch (error) {
+        console.log(error)
+      }
     },
     onReset(evt) {
       evt.preventDefault()
@@ -126,9 +133,9 @@ export default {
       this.workout.date = ''
       this.workout.time = ''
       this.workout.location = ''
-      this.workout.cost = ''
-      this.workout.member = ''
-      this.workout.detail = ''
+      this.workout.cost = 0
+      this.workout.member = 1
+      this.workout.detail = []
       this.workout.type = ''
       // Trick to reset/clear native browser form validation state
       this.show = false

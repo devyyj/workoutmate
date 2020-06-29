@@ -4,8 +4,11 @@ const express = require('express')
 const app = express()
 
 // Require API routes
+const bodyParser = require('body-parser')
 const users = require('./routes/cards')
 
+app.use(bodyParser.json()) // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 // Import API Routes
 app.use(users)
 

@@ -1,5 +1,5 @@
-module.exports = async (sequelize, DataTypes) => {
-  const model = await sequelize.define(
+module.exports = (sequelize, DataTypes) => {
+  return sequelize.define(
     'cards',
     {
       user: { type: DataTypes.STRING, allowNull: false },
@@ -24,6 +24,4 @@ module.exports = async (sequelize, DataTypes) => {
       collate: 'utf8_unicode_ci',
     }
   )
-  await sequelize.sync({ alter: true })
-  return model
 }
