@@ -117,10 +117,10 @@ export default {
     }
   },
   methods: {
-    onSubmit(evt) {
+    async onSubmit(evt) {
       try {
         evt.preventDefault()
-        this.$axios.$post('/cards', this.workout)
+        await this.$axios.$post('/cards', this.workout)
         this.$router.push('/')
       } catch (error) {
         console.log(error)

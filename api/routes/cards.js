@@ -11,10 +11,10 @@ router.get('/cards', async function (req, res, next) {
   res.send(await cards.findAll({ order: [['id', 'DESC']] }))
 })
 
-router.post('/cards', (req, res) => {
+router.post('/cards', async (req, res) => {
   try {
     const data = req.body
-    cards.create({
+    await cards.create({
       user: data.user,
       content: data.content,
       workout_time: `${data.date} ${data.time}`,
