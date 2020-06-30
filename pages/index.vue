@@ -3,7 +3,7 @@
     <b-row>
       <card v-for="(item, index) in items" :key="index" :item="item"></card>
     </b-row>
-    <b-navbar fixed="bottom" sticky="true">
+    <b-navbar fixed="bottom" sticky>
       <b-button block variant="primary" @click="createCard"
         >크루 카드 만들기</b-button
       >

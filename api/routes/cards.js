@@ -1,7 +1,7 @@
 const { Router } = require('express')
+const m = require('moment')
 const { sequelize, DataTypes } = require('../db')
 const model = require('../models/cards')
-
 const router = Router()
 
 const cards = model(sequelize, DataTypes)
@@ -17,7 +17,7 @@ router.post('/cards', async (req, res) => {
     await cards.create({
       user: data.user,
       content: data.content,
-      workout_time: `${data.date} ${data.time}`,
+      workout_time: m(`${data.date}T${data.time}+09:00`),
       workout_location: data.location,
       workout_member: data.member,
       workout_type: data.type,

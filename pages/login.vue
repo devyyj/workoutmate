@@ -1,10 +1,8 @@
 <template>
   <div>
-    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
     <a id="create-kakao-login-btn"></a>
-    <b-button @click="getData">GET</b-button>
     <b-button @click="logout">로그아웃</b-button>
-    <a id="login-form-btn" :href="relogin">
+    <a id="login-form-btn" href="#" @click="relogin">
       <img
         src="//k.kakaocdn.net/14/dn/btqCn0WEmI3/nijroPfbpCa4at5EIsjyf0/o.jpg"
         width="222"
@@ -32,7 +30,6 @@ export default {
       },
     })
   },
-  // window.Kakao.Auth.setAccessToken(response.access_token)
   methods: {
     relogin() {
       window.Kakao.Auth.loginForm({
@@ -41,17 +38,6 @@ export default {
         },
         fail(err) {
           alert(JSON.stringify(err))
-        },
-      })
-    },
-    getData() {
-      window.Kakao.API.request({
-        url: '/v2/user/me',
-        success(response) {
-          console.log(response)
-        },
-        fail(error) {
-          console.log(error)
         },
       })
     },
@@ -64,6 +50,9 @@ export default {
         console.log(window.Kakao.Auth.getAccessToken())
       })
     },
+  },
+  head: {
+    script: [{ src: 'https://developers.kakao.com/sdk/js/kakao.min.js' }],
   },
 }
 </script>

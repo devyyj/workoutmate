@@ -72,7 +72,7 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: 'http://localhost:8080/api',
+    baseURL: process.env.AXIOS_BASEURL || 'http://localhost:8080/api',
   },
   /*
    ** Content module configuration
