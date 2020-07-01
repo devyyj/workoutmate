@@ -2,9 +2,6 @@
   <div>
     <!-- 한줄에 3개 이상 들어가면 화면이 밀린다! 수정 요망 -->
     <b-row>
-      <p>하이 {{ isLogin }}</p>
-    </b-row>
-    <b-row>
       <card v-for="(item, index) in items" :key="index" :item="item"></card>
     </b-row>
     <b-navbar fixed="bottom" sticky>
@@ -30,9 +27,7 @@ export default {
       isLogin: '',
     }
   },
-  mounted() {
-    this.isLogin = window.Kakao.Auth.getAccessToken()
-  },
+  mounted() {},
   methods: {
     createCard(e) {
       this.$router.push('/createCard')

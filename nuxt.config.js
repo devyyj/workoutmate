@@ -1,4 +1,7 @@
 export default {
+  env: {
+    WEB_HOST: process.env.WEB_HOST || 'http://localhost:8080',
+  },
   serverMiddleware: [
     // API middleware
     '~/api/index.js',
@@ -71,7 +74,7 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: process.env.BASE_URL || 'http://localhost:8080/api',
+    baseURL: process.env.AXIOS_BASEURL || 'http://localhost:8080/api',
   },
   /*
    ** Content module configuration
