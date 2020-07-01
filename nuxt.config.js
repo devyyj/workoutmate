@@ -4,8 +4,7 @@ export default {
     '~/api/index.js',
   ],
   server: {
-    port: 8080, // default: 3000
-    // host: '0.0.0.0', // default: localhost
+    port: 8080,
   },
   /*
    ** Nuxt rendering mode
@@ -72,7 +71,7 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: process.env.AXIOS_BASEURL || 'http://localhost:8080/api',
+    baseURL: process.env.BASE_URL || 'http://localhost:8080/api',
   },
   /*
    ** Content module configuration

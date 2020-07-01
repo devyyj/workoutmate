@@ -45,7 +45,6 @@
 <script>
 import m from 'moment'
 export default {
-  name: 'Card',
   props: {
     item: {
       type: Object,

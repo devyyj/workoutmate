@@ -7,6 +7,10 @@ const sequelize = new Sequelize(
   { dialectOptions: { timezone: 'Etc/GMT0' } }
 )
 
+console.log(
+  `${config.db.dialect}://${config.db.user}:${config.db.pass}@${config.db.host}:${config.db.port}/${config.db.name}`
+)
+
 try {
   ;(async () => {
     await sequelize.authenticate()
