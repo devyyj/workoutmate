@@ -4,6 +4,7 @@
     <Nuxt />
   </b-container>
 </template>
+
 <script>
 import top from '../components/top'
 export default {

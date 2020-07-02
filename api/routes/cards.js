@@ -22,7 +22,7 @@ router.post('/cards', async (req, res) => {
       workout_member: data.member,
       workout_type: data.type,
       workout_detail: data.detail.join(),
-      workout_cost: data.const,
+      workout_cost: data.cost,
     })
     res.sendStatus(200)
   } catch (e) {

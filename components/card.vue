@@ -30,6 +30,9 @@
         <b-list-group-item
           >모집 인원 : {{ item.workout_member }}
         </b-list-group-item>
+        <b-list-group-item
+          >비용 : {{ item.workout_cost }} 원
+        </b-list-group-item>
       </b-list-group>
 
       <b-card-body>

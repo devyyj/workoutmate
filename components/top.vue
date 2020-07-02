@@ -8,11 +8,19 @@
       <b-collapse id="nav-collapse" is-nav>
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          <b-nav-item href="#" @click="login">카카오 로그인</b-nav-item>
-          <b-nav-item href="#" @click="logout">다른 계정으로 로그인</b-nav-item>
-          <b-nav-item href="#" @click="logout">로그아웃</b-nav-item>
-          <b-nav-item href="#" @click="unlinkApp">탈퇴</b-nav-item>
-          <b-nav-item href="#" @click="setting">설정</b-nav-item>
+          <b-nav-item v-if="!isLogin" href="#" @click="login"
+            >카카오톡 로그인</b-nav-item
+          >
+          <b-nav-item v-if="!isLogin" href="#" @click="loginFormWithKakao"
+            >카카오 계정 로그인</b-nav-item
+          >
+          <b-nav-item v-if="isLogin" href="#" @click="logout"
+            >로그아웃</b-nav-item
+          >
+          <b-nav-item v-if="isLogin" href="#" @click="unlinkApp"
+            >탈퇴</b-nav-item
+          >
+          <b-nav-item v-if="isLogin" href="#" @click="setting">설정</b-nav-item>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
@@ -21,9 +29,14 @@
 
 <script>
 export default {
+  data() {
+    return {
+      isLogin: false,
+    }
+  },
   methods: {
+    // 사용자 정보 요청
     getUserInfo() {
-      // 사용자 정보 요청
       window.Kakao.API.request({
         url: '/v2/user/me',
         success(res) {
@@ -38,24 +51,32 @@ export default {
         },
       })
     },
-    login(k) {
+    // 로그인
+    login() {
       window.Kakao.Auth.login({
-        success(authObj) {
-          // 다른 메소드 사용하는 방법 모르겠음...
+        // arrow function 처리해야 다른 method 호출 가능!
+        success: (authObj) => {
           this.getUserInfo()
         },
         fail(err) {
           alert(`로그인에 실패했습니다.\n${JSON.stringify(err)}`)
+        },
+        always: () => {
+          this.isLogin = window.Kakao.Auth.getAccessToken()
         },
       })
     },
+    // 다른 계정 로그인
     loginFormWithKakao() {
       window.Kakao.Auth.loginForm({
-        success(authObj) {
+        success: (authObj) => {
           this.getUserInfo()
         },
         fail(err) {
           alert(`로그인에 실패했습니다.\n${JSON.stringify(err)}`)
+        },
+        always: () => {
+          this.isLogin = window.Kakao.Auth.getAccessToken()
         },
       })
     },
@@ -64,26 +85,23 @@ export default {
         alert('로그인 상태가 아닙니다.')
         return
       }
-      window.Kakao.Auth.logout(function () {
+      window.Kakao.Auth.logout(() => {
         alert(`로그아웃 되었습니다.`)
+        this.isLogin = window.Kakao.Auth.getAccessToken()
       })
     },
+    // 서비스 탈퇴
     unlinkApp() {
-      // 서비스 탈퇴
       if (confirm(`Work Out Mate 서비스를 탈퇴합니다.`)) {
         window.Kakao.API.request({
           url: '/v1/user/unlink',
-          success(res) {
+          success: (res) => {
             // 서비스를 탈퇴하면 로그아웃도 진행한다.
-            window.Kakao.Auth.logout()
             alert('서비스 탈퇴에 성공했습니다.')
+            this.isLogin = false
           },
           fail(err) {
-            alert(
-              `서비스 탈퇴에 실패했습니다.\n로그인 상태가 아닙니다.\n${JSON.stringify(
-                err
-              )}`
-            )
+            alert(`서비스 탈퇴에 실패했습니다.\n${JSON.stringify(err)}`)
           },
         })
       }
@@ -91,6 +109,9 @@ export default {
     setting() {
       alert(`준비중..`)
     },
+  },
+  beforeMount() {
+    this.isLogin = window.Kakao.Auth.getAccessToken()
   },
 }
 </script>
