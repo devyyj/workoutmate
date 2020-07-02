@@ -34,6 +34,11 @@ export default {
       isLogin: false,
     }
   },
+  mounted() {
+    // init은 최초에 한번!
+    window.Kakao.init('c5d4b6ee6c437fd80a93fc64ca9982f9')
+    this.isLogin = window.Kakao.Auth.getAccessToken()
+  },
   methods: {
     // 사용자 정보 요청
     getUserInfo() {
@@ -109,9 +114,6 @@ export default {
     setting() {
       alert(`준비중..`)
     },
-  },
-  beforeMount() {
-    this.isLogin = window.Kakao.Auth.getAccessToken()
   },
 }
 </script>

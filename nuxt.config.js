@@ -35,6 +35,7 @@ export default {
       },
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    script: [{ src: 'https://developers.kakao.com/sdk/js/kakao.min.js' }],
   },
   /*
    ** Global CSS
