@@ -44,8 +44,9 @@ export default {
     getUserInfo() {
       window.Kakao.API.request({
         url: '/v2/user/me',
-        success(res) {
-          alert(`${res.properties.nickname}님, 안녕하세요!`)
+        success: (res) => {
+          // 로그인에 성공하고 사용자 정보를 받으면 users 테이블에 추가한다.
+          this.$axios.$post('/users', { id: res.id })
         },
         fail(error) {
           alert(
@@ -100,8 +101,10 @@ export default {
       if (confirm(`Work Out Mate 서비스를 탈퇴합니다.`)) {
         window.Kakao.API.request({
           url: '/v1/user/unlink',
-          success: (res) => {
-            // 서비스를 탈퇴하면 로그아웃도 진행한다.
+          success: async (res) => {
+            console.log(res)
+            // delete는 바디에 담을 수 없음!
+            await this.$axios.$delete('/users', res)
             alert('서비스 탈퇴에 성공했습니다.')
             this.isLogin = false
           },

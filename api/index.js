@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-
 
 // Import API Routes
 app.use(require('./routes/cards'))
-app.use(require('./routes/oauth'))
+app.use(require('./routes/users'))
 
 app.get('/', function (req, res, next) {
   res.send('pong!')
