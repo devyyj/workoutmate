@@ -102,11 +102,13 @@ export default {
         window.Kakao.API.request({
           url: '/v1/user/unlink',
           success: async (res) => {
-            console.log(res)
-            // delete는 바디에 담을 수 없음!
-            await this.$axios.$delete('/users', res)
+            // delete는 body에 담을 수 없음!
+            await this.$axios.$delete(`/users?id=${res.id}`)
+            // 탈퇴 후 로그아웃
+            window.Kakao.Auth.logout(() => {
+              this.isLogin = window.Kakao.Auth.getAccessToken()
+            })
             alert('서비스 탈퇴에 성공했습니다.')
-            this.isLogin = false
           },
           fail(err) {
             alert(`서비스 탈퇴에 실패했습니다.\n${JSON.stringify(err)}`)

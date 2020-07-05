@@ -8,7 +8,7 @@
     >
       <template v-slot:header>
         <h4 class="mb-0">
-          {{ item.user }}
+          {{ item.user.nick_name }}
         </h4>
       </template>
 

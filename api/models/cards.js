@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
     'cards',
     {
-      user_id: { type: DataTypes.INTEGER, allowNull: false },
+      user_id: { type: DataTypes.STRING, allowNull: false },
       content: { type: DataTypes.STRING, allowNull: false },
       workout_time: { type: DataTypes.DATE, allowNull: false },
       workout_location: { type: DataTypes.STRING, allowNull: false },

@@ -1,6 +1,19 @@
 <template>
   <div>
     <b-form @submit="onSubmit">
+      <b-form-group
+        id="input-group-0"
+        label="닉네임"
+        label-for="input-0"
+        description="설정에서 닉네임을 변경할 수 있습니다."
+      >
+        <b-form-input
+          id="input-0"
+          v-model="workout.nick_name"
+          disabled
+        ></b-form-input>
+      </b-form-group>
+
       <b-form-group id="input-group-1" label="함께할 운동" label-for="input-1">
         <b-form-select
           id="input-1"
@@ -110,7 +123,8 @@ export default {
   data() {
     return {
       workout: {
-        user: '',
+        user_id: '',
+        nick_name: '',
         content: '',
         date: m().format('YYYY-MM-DD'),
         time: m().format('HH:mm:ss'),
@@ -124,7 +138,6 @@ export default {
       options: [
         { value: null, text: '운동을 선택해 주세요.' },
         { value: '헬스', text: '헬스' },
-        { value: '섹스', text: '섹스' },
         { value: '러닝', text: '러닝' },
         { value: '워킹', text: '워킹' },
         { value: '축구', text: '축구' },
@@ -136,8 +149,11 @@ export default {
   mounted() {
     window.Kakao.API.request({
       url: '/v2/user/me',
-      success: (res) => {
-        this.workout.user = res.properties.nickname
+      success: async (res) => {
+        this.workout.user_id = res.id
+        this.workout.nick_name = (
+          await this.$axios.$get(`/users?id=${res.id}`)
+        ).nick_name
       },
       fail(error) {
         console.log(error)
