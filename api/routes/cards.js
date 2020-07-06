@@ -41,4 +41,14 @@ router.post('/cards', async (req, res) => {
   }
 })
 
+router.delete('/cards', async (req, res) => {
+  try {
+    const data = req.query
+    await cards.destroy({ where: { id: data.id } })
+    res.sendStatus(200)
+  } catch (error) {
+    console.log(error)
+  }
+})
+
 module.exports = router

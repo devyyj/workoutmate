@@ -47,6 +47,7 @@ export default {
         success: (res) => {
           // 로그인에 성공하고 사용자 정보를 받으면 users 테이블에 추가한다.
           this.$axios.$post('/users', { id: res.id })
+          this.$router.push('/')
         },
         fail(error) {
           alert(
@@ -92,8 +93,9 @@ export default {
         return
       }
       window.Kakao.Auth.logout(() => {
-        alert(`로그아웃 되었습니다.`)
         this.isLogin = window.Kakao.Auth.getAccessToken()
+        alert(`로그아웃 되었습니다.`)
+        this.$router.push('/')
       })
     },
     // 서비스 탈퇴
@@ -109,6 +111,7 @@ export default {
               this.isLogin = window.Kakao.Auth.getAccessToken()
             })
             alert('서비스 탈퇴에 성공했습니다.')
+            this.$router.push('/')
           },
           fail(err) {
             alert(`서비스 탈퇴에 실패했습니다.\n${JSON.stringify(err)}`)

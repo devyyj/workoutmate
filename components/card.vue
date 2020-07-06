@@ -1,5 +1,5 @@
 <template>
-  <b-col lg="4">
+  <b-col v-if="condition" lg="4">
     <b-card
       no-body
       img-src="https://placekitten.com/380/200"
@@ -36,7 +36,11 @@
       </b-list-group>
 
       <b-card-body>
-        <b-button variant="outline-primary">참여</b-button>
+        <b-button v-if="!isOwner" variant="outline-primary">참여</b-button>
+        <b-button v-if="isOwner" variant="outline-warning">수정</b-button>
+        <b-button v-if="isOwner" variant="outline-danger" @click="onDelete"
+          >삭제</b-button
+        >
       </b-card-body>
 
       <b-card-footer>댓글?</b-card-footer>
@@ -56,9 +60,26 @@ export default {
       },
     },
   },
+  data() {
+    return {
+      condition: true,
+      isOwner: false,
+    }
+  },
   computed: {
     createTime() {
       return m(this.item.workout_time).format('YYYY-MM-DD HH:mm:ss')
+    },
+  },
+  mounted() {},
+  methods: {
+    async onDelete() {
+      if (confirm('크루 카드를 삭제하시겠습니까?')) {
+        await this.$axios.$delete(`/cards?id=${this.item.id}`)
+        // 삭제한 카드는 화면에서 숨긴다
+        // reload 해야 확실하지만 일단 빠르게 처리된 효과
+        this.condition = false
+      }
     },
   },
 }
