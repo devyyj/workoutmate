@@ -44,9 +44,10 @@ export default {
     getUserInfo() {
       window.Kakao.API.request({
         url: '/v2/user/me',
-        success: (res) => {
+        success: async (res) => {
           // 로그인에 성공하고 사용자 정보를 받으면 users 테이블에 추가한다.
-          this.$axios.$post('/users', { id: res.id })
+          const token = await this.$axios.$post('/users', { id: res.id })
+          this.$axios.setToken(token, 'Bearer')
           this.$router.push('/')
         },
         fail(error) {
@@ -120,7 +121,7 @@ export default {
       }
     },
     setting() {
-      alert(`준비중..`)
+      alert('준비중')
     },
   },
 }

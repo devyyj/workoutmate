@@ -1,10 +1,7 @@
 import { Router } from 'express'
-
-const { sequelize, DataTypes } = require('../db')
-const model = require('../models/users')
+const jwt = require('jsonwebtoken')
+const users = require('../models/users')
 const router = Router()
-
-const users = model(sequelize, DataTypes)
 
 router.get('/users', async (req, res) => {
   const data = req.query
@@ -17,7 +14,7 @@ router.post('/users', async (req, res) => {
     if (!(await users.findOne({ where: { id: data.id } }))) {
       await users.create({ id: data.id, nick_name: data.id })
     }
-    res.sendStatus(200)
+    res.send(jwt.sign({ id: data.id }, 'secret'))
   } catch (error) {
     console.log(error)
   }
@@ -29,4 +26,5 @@ router.delete('/users', async (req, res) => {
   res.sendStatus(200)
 })
 
+// passport.authenticate('jwt', { session: false })
 module.exports = router

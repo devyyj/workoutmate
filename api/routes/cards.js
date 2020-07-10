@@ -1,18 +1,15 @@
 const { Router } = require('express')
 const m = require('moment')
-const { sequelize, DataTypes } = require('../db')
-const cardsModel = require('../models/cards')
-const usersModel = require('../models/users')
+
+const cards = require('../models/cards')
+const users = require('../models/users')
+
 const router = Router()
 
-const cards = cardsModel(sequelize, DataTypes)
-const users = usersModel(sequelize, DataTypes)
-
 // join 개념 공부 필요!
-users.hasMany(cards, { foreignKey: 'user_id' })
 cards.belongsTo(users, { foreignKey: 'user_id' })
+users.hasMany(cards, { foreignKey: 'user_id' })
 
-/* GET users listing. */
 router.get('/cards', async function (req, res, next) {
   const data = await cards.findAll({
     include: { model: users, required: true },
