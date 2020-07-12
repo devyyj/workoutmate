@@ -72,9 +72,13 @@ export default {
     },
   },
   async mounted() {
-    const myid = await this.$axios.get('myid')
-    if (String(myid.data) === this.item.user_id) {
-      this.isOwner = true
+    try {
+      const myid = await this.$axios.get('myid')
+      if (String(myid.data) === this.item.user_id) {
+        this.isOwner = true
+      }
+    } catch (error) {
+      this.isOwner = false
     }
   },
   methods: {
