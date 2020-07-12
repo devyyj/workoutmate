@@ -69,6 +69,8 @@ export default {
     '@nuxtjs/pwa',
     // Doc: https://github.com/nuxt/content
     '@nuxt/content',
+
+    'cookie-universal-nuxt',
   ],
   /*
    ** Axios module configuration

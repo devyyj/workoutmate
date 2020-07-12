@@ -36,7 +36,7 @@
       </b-list-group>
 
       <b-card-body>
-        <b-button v-if="!isOwner" variant="outline-primary">참여</b-button>
+        <b-button variant="outline-primary">참여</b-button>
         <b-button v-if="isOwner" variant="outline-warning">수정</b-button>
         <b-button v-if="isOwner" variant="outline-danger" @click="onDelete"
           >삭제</b-button
@@ -71,7 +71,12 @@ export default {
       return m(this.item.workout_time).format('YYYY-MM-DD HH:mm:ss')
     },
   },
-  mounted() {},
+  async mounted() {
+    const myid = await this.$axios.get('myid')
+    if (String(myid.data) === this.item.user_id) {
+      this.isOwner = true
+    }
+  },
   methods: {
     async onDelete() {
       if (confirm('크루 카드를 삭제하시겠습니까?')) {

@@ -146,19 +146,12 @@ export default {
       ],
     }
   },
-  mounted() {
-    window.Kakao.API.request({
-      url: '/v2/user/me',
-      success: async (res) => {
-        this.workout.user_id = res.id
-        this.workout.nick_name = (
-          await this.$axios.$get(`/users?id=${res.id}`)
-        ).nick_name
-      },
-      fail(error) {
-        console.log(error)
-      },
-    })
+  async mounted() {
+    const myid = await this.$axios.get('/myid')
+    this.workout.user_id = myid.data
+    this.workout.nick_name = (
+      await this.$axios.$get(`/users?id=${myid.data}`)
+    ).nick_name
   },
   methods: {
     async onSubmit(evt) {

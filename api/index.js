@@ -1,37 +1,11 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-
-const passport = require('passport')
-const JwtStrategy = require('passport-jwt').Strategy
-const ExtractJwt = require('passport-jwt').ExtractJwt
-
-const users = require('./models/users')
-
-const opts = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: 'secret',
-  // issuer: 'accounts.examplesoft.com',
-  // audience: 'workoutmate.kr',
-}
-
-passport.use(
-  new JwtStrategy(opts, async function (jwtPayload, done) {
-    try {
-      const data = await users.findOne({ where: { id: jwtPayload.id } })
-      if (data) {
-        return done(null, data)
-      } else {
-        return done(null, false)
-      }
-    } catch (error) {
-      return done(error, false)
-    }
-  })
-)
-
+const cookieParser = require('cookie-parser')
+const passport = require('./passport')
 const app = express()
 
 app.use(passport.initialize())
+app.use(cookieParser())
 app.use(bodyParser.json()) // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
@@ -43,9 +17,28 @@ app.get('/', function (req, res) {
   res.send('pong!')
 })
 
-// 로그인 상태 확인 라우트 작성
+// 로그인 상태 확인. 토큰이 없으면 401 리턴.
+app.get(
+  '/login',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    res.sendStatus(200)
+  }
+)
 
-// 내 아이디 확인 라우트 작성
+app.get('/logout', (req, res) => {
+  res.clearCookie('jwt')
+  res.sendStatus(200)
+})
+
+// 내 아이디 확인
+app.get(
+  '/myid',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    res.send(req.user.id)
+  }
+)
 
 // Export the server middleware
 module.exports = {

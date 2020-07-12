@@ -34,10 +34,15 @@ export default {
       isLogin: false,
     }
   },
-  mounted() {
+  async mounted() {
     // init은 최초에 한번!
     window.Kakao.init('c5d4b6ee6c437fd80a93fc64ca9982f9')
-    this.isLogin = window.Kakao.Auth.getAccessToken()
+    try {
+      await this.$axios.get('/login')
+      this.isLogin = true
+    } catch (error) {
+      this.isLogin = false
+    }
   },
   methods: {
     // 사용자 정보 요청
@@ -46,8 +51,8 @@ export default {
         url: '/v2/user/me',
         success: async (res) => {
           // 로그인에 성공하고 사용자 정보를 받으면 users 테이블에 추가한다.
-          const token = await this.$axios.$post('/users', { id: res.id })
-          this.$axios.setToken(token, 'Bearer')
+          await this.$axios.$post('/users', { id: res.id })
+          this.isLogin = true
           this.$router.push('/')
         },
         fail(error) {
@@ -69,9 +74,6 @@ export default {
         fail(err) {
           alert(`로그인에 실패했습니다.\n${JSON.stringify(err)}`)
         },
-        always: () => {
-          this.isLogin = window.Kakao.Auth.getAccessToken()
-        },
       })
     },
     // 다른 계정 로그인
@@ -83,21 +85,21 @@ export default {
         fail(err) {
           alert(`로그인에 실패했습니다.\n${JSON.stringify(err)}`)
         },
-        always: () => {
-          this.isLogin = window.Kakao.Auth.getAccessToken()
-        },
       })
     },
-    logout() {
-      if (!window.Kakao.Auth.getAccessToken()) {
+    async logout() {
+      if (!this.isLogin) {
         alert('로그인 상태가 아닙니다.')
         return
       }
-      window.Kakao.Auth.logout(() => {
-        this.isLogin = window.Kakao.Auth.getAccessToken()
+      try {
+        await this.$axios.get('/logout')
+        this.isLogin = false
         alert(`로그아웃 되었습니다.`)
         this.$router.push('/')
-      })
+      } catch (error) {
+        alert(error)
+      }
     },
     // 서비스 탈퇴
     unlinkApp() {
@@ -105,14 +107,16 @@ export default {
         window.Kakao.API.request({
           url: '/v1/user/unlink',
           success: async (res) => {
-            // delete는 body에 담을 수 없음!
-            await this.$axios.$delete(`/users?id=${res.id}`)
-            // 탈퇴 후 로그아웃
-            window.Kakao.Auth.logout(() => {
-              this.isLogin = window.Kakao.Auth.getAccessToken()
-            })
-            alert('서비스 탈퇴에 성공했습니다.')
-            this.$router.push('/')
+            try {
+              const myid = await this.$axios.get('/myid')
+              await this.$axios.$delete(`/users?id=${myid.data}`)
+              await this.$axios.get('/logout')
+              this.isLogin = false
+              alert('서비스 탈퇴에 성공했습니다.')
+              this.$router.push('/')
+            } catch (error) {
+              alert(error)
+            }
           },
           fail(err) {
             alert(`서비스 탈퇴에 실패했습니다.\n${JSON.stringify(err)}`)

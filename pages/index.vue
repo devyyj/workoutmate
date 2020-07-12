@@ -23,10 +23,11 @@ export default {
     return { items: await $axios.$get('/cards') }
   },
   methods: {
-    createCard(e) {
-      if (window.Kakao.Auth.getAccessToken()) {
+    async createCard(e) {
+      try {
+        await this.$axios.get('/login')
         this.$router.push('/createCard')
-      } else {
+      } catch (error) {
         alert('로그인 상태가 아닙니다.')
       }
     },
