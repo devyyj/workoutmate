@@ -37,8 +37,13 @@
 
       <b-card-body>
         <b-button variant="outline-primary">참여</b-button>
-        <b-button v-if="isOwner" variant="outline-warning">수정</b-button>
-        <b-button v-if="isOwner" variant="outline-danger" @click="onDelete"
+        <b-button v-if="isOwner && isLogin" variant="outline-warning"
+          >수정</b-button
+        >
+        <b-button
+          v-if="isOwner && isLogin"
+          variant="outline-danger"
+          @click="onDelete"
           >삭제</b-button
         >
       </b-card-body>
@@ -63,23 +68,21 @@ export default {
   data() {
     return {
       condition: true,
-      isOwner: false,
     }
   },
   computed: {
     createTime() {
       return m(this.item.workout_time).format('YYYY-MM-DD HH:mm:ss')
     },
+    isOwner() {
+      return this.$store.state.isOwner
+    },
+    isLogin() {
+      return this.$store.state.isLogin
+    },
   },
   async mounted() {
-    try {
-      const myid = await this.$axios.get('myid')
-      if (String(myid.data) === this.item.user_id) {
-        this.isOwner = true
-      }
-    } catch (error) {
-      this.isOwner = false
-    }
+    await this.$store.commit('setOwner')
   },
   methods: {
     async onDelete() {

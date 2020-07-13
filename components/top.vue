@@ -31,17 +31,22 @@
 export default {
   data() {
     return {
-      isLogin: false,
+      // isLogin: false,
     }
+  },
+  computed: {
+    isLogin() {
+      return this.$store.state.isLogin
+    },
   },
   async mounted() {
     // init은 최초에 한번!
     window.Kakao.init('c5d4b6ee6c437fd80a93fc64ca9982f9')
     try {
       await this.$axios.get('/login')
-      this.isLogin = true
+      this.$store.commit('login')
     } catch (error) {
-      this.isLogin = false
+      this.$store.commit('logout')
     }
   },
   methods: {
@@ -52,7 +57,7 @@ export default {
         success: async (res) => {
           // 로그인에 성공하고 사용자 정보를 받으면 users 테이블에 추가한다.
           await this.$axios.$post('/users', { id: res.id })
-          this.isLogin = true
+          this.$store.commit('login')
           this.$router.push('/')
         },
         fail(error) {
@@ -88,13 +93,13 @@ export default {
       })
     },
     async logout() {
-      if (!this.isLogin) {
+      if (!this.$store.state.isLogin) {
         alert('로그인 상태가 아닙니다.')
         return
       }
       try {
         await this.$axios.get('/logout')
-        this.isLogin = false
+        this.$store.commit('logout')
         alert(`로그아웃 되었습니다.`)
         this.$router.push('/')
       } catch (error) {
@@ -111,7 +116,7 @@ export default {
               const myid = await this.$axios.get('/myid')
               await this.$axios.$delete(`/users?id=${myid.data}`)
               await this.$axios.get('/logout')
-              this.isLogin = false
+              this.$store.commit('logout')
               alert('서비스 탈퇴에 성공했습니다.')
               this.$router.push('/')
             } catch (error) {
@@ -125,7 +130,7 @@ export default {
       }
     },
     setting() {
-      alert('준비중')
+      alert(this.$store.state.isLogin)
     },
   },
 }
