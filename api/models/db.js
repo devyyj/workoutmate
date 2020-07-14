@@ -14,6 +14,7 @@ console.log(
 try {
   ;(async () => {
     await sequelize.authenticate()
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
     console.log('Connection has been established successfully.')
     await sequelize.sync({ alter: true })
   })()

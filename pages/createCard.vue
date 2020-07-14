@@ -147,6 +147,7 @@ export default {
     }
   },
   async mounted() {
+    console.log(this.$route.query)
     const myid = await this.$axios.get('/myid')
     this.workout.user_id = myid.data
     this.workout.nick_name = (
@@ -161,7 +162,7 @@ export default {
         await this.$axios.$post('/cards', this.workout)
         this.$router.push('/')
       } catch (error) {
-        console.log(error)
+        alert(error)
       }
     },
     onCancel(evt) {

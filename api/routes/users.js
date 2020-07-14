@@ -27,8 +27,13 @@ router.delete(
   '/users',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-    await users.destroy({ where: { id: req.user.id } })
-    res.sendStatus(200)
+    try {
+      await users.destroy({ where: { id: req.user.id }, truncate: true })
+      res.sendStatus(200)
+    } catch (error) {
+      console.log(error)
+      res.sendStatus(500)
+    }
   }
 )
 

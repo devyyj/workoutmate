@@ -10,19 +10,10 @@ export const mutations = {
   logout(state) {
     state.isLogin = false
   },
-  async setOwner(state) {
-    console.log(`setOwner`)
-    try {
-      const myid = await this.$axios.get('myid')
-
-      if (String(myid.data) === this.item.user_id) {
-        state.isOwner = true
-        console.log(`state.isOwner = true`)
-      }
-    } catch (error) {
-      console.log(error)
-      state.isOwner = false
-      console.log(`state.isOwner = false`)
-    }
+  owner(state) {
+    state.isOwner = true
+  },
+  notOwner(state) {
+    state.isOwner = false
   },
 }

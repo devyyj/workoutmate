@@ -58,6 +58,8 @@ export default {
           // 로그인에 성공하고 사용자 정보를 받으면 users 테이블에 추가한다.
           await this.$axios.$post('/users', { id: res.id })
           this.$store.commit('login')
+          // 로그인 했을때 Card 버튼(수정, 삭제) 상태를 바꾼다.
+          this.$nuxt.$emit('setOwner')
           this.$router.push('/')
         },
         fail(error) {
@@ -113,8 +115,7 @@ export default {
           url: '/v1/user/unlink',
           success: async (res) => {
             try {
-              const myid = await this.$axios.get('/myid')
-              await this.$axios.$delete(`/users?id=${myid.data}`)
+              await this.$axios.$delete(`/users`)
               await this.$axios.get('/logout')
               this.$store.commit('logout')
               alert('서비스 탈퇴에 성공했습니다.')
