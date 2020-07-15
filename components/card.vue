@@ -19,8 +19,11 @@
           item.workout_detail
         }}</b-card-sub-title>
         <p v-if="!readMore">
-          {{ item.content.slice(0, 30) + '...' }}
-          <a href="#" @click="onReadMore"> {{ readLink }} </a>
+          <!-- 본문의 길이가 30보다 길때만 더보기 버튼을 생성, isLongContent -->
+          {{ isLongContent ? item.content.slice(0, 30) + '...' : item.content }}
+          <a v-if="isLongContent" href="#" @click="onReadMore">
+            {{ readLink }}
+          </a>
         </p>
         <pre v-if="readMore" style="white-space: pre-line;">
           {{ item.content }} <a href="#" @click="onReadMore">{{ readLink }}</a>
@@ -88,6 +91,7 @@ export default {
       condition: true,
       readMore: false,
       readLink: '더보기',
+      contentLength: 0,
     }
   },
   computed: {
@@ -101,6 +105,9 @@ export default {
     },
     isLogin() {
       return this.$store.state.isLogin
+    },
+    isLongContent() {
+      return this.item.content.length > 30
     },
   },
   created() {

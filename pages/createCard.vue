@@ -1,6 +1,7 @@
 <template>
   <div>
-    <b-form novalidate validated @submit="onSubmit">
+    <!-- novalidate -->
+    <b-form validated @submit="onSubmit">
       <b-form-group
         id="input-group-0"
         label="닉네임"
@@ -23,26 +24,25 @@
         ></b-form-select>
       </b-form-group>
 
-      <!-- <b-form-group
+      <b-form-group
         id="input-group-2"
         label="운동 스타일"
         label-for="tags-pills"
         description="태그 길이는 10자까지 태그 수는 10개까지 입니다."
       >
-      </b-form-group> -->
-
-      <b-form-tags
-        v-model="workout.detail"
-        input-id="tags-pills"
-        tag-variant="primary"
-        tag-pills
-        separator=" "
-        placeholder="띄어쓰기로 태그를 구분하세요."
-        class="mb-2"
-        :state="tagsState"
-        :tag-validator="validator"
-        remove-on-delete
-      ></b-form-tags>
+        <b-form-tags
+          v-model="workout.detail"
+          input-id="tags-pills"
+          tag-variant="primary"
+          tag-pills
+          separator=" "
+          placeholder="띄어쓰기로 태그를 구분하세요."
+          class="mb-2"
+          :state="tagsState"
+          :tag-validator="validator"
+          remove-on-delete
+        ></b-form-tags>
+      </b-form-group>
 
       <b-form-group
         id="input-group-3"
