@@ -9,16 +9,16 @@ module.exports = sequelize.define(
     workout_time: { type: DataTypes.DATE, allowNull: false },
     workout_location: { type: DataTypes.STRING, allowNull: false },
     workout_member: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 1,
+      defaultValue: '1',
     },
     workout_type: { type: DataTypes.STRING, allowNull: false },
     workout_detail: { type: DataTypes.STRING, allowNull: false },
     workout_cost: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: '0',
     },
   },
   {

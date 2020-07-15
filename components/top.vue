@@ -131,7 +131,7 @@ export default {
       }
     },
     setting() {
-      alert(this.$store.state.isLogin)
+      alert('준비중...')
     },
   },
 }

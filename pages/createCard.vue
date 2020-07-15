@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-form @submit="onSubmit">
+    <b-form novalidate validated @submit="onSubmit">
       <b-form-group
         id="input-group-0"
         label="닉네임"
@@ -23,23 +23,26 @@
         ></b-form-select>
       </b-form-group>
 
-      <b-form-group
+      <!-- <b-form-group
         id="input-group-2"
         label="운동 스타일"
         label-for="tags-pills"
-        description="ex) #쉬면서 #초보 #재밌게"
+        description="태그 길이는 10자까지 태그 수는 10개까지 입니다."
       >
-        <b-form-tags
-          v-model="workout.detail"
-          input-id="tags-pills"
-          tag-variant="primary"
-          tag-pills
-          separator=" "
-          placeholder="띄어쓰기로 태그를 구분하세요."
-          class="mb-2"
-          remove-on-delete
-        ></b-form-tags>
-      </b-form-group>
+      </b-form-group> -->
+
+      <b-form-tags
+        v-model="workout.detail"
+        input-id="tags-pills"
+        tag-variant="primary"
+        tag-pills
+        separator=" "
+        placeholder="띄어쓰기로 태그를 구분하세요."
+        class="mb-2"
+        :state="tagsState"
+        :tag-validator="validator"
+        remove-on-delete
+      ></b-form-tags>
 
       <b-form-group
         id="input-group-3"
@@ -146,20 +149,47 @@ export default {
       ],
     }
   },
+  computed: {
+    tagsState() {
+      const length = this.workout.detail.length
+      return length === 0 ? null : length <= 10
+    },
+  },
   async mounted() {
-    console.log(this.$route.query)
-    const myid = await this.$axios.get('/myid')
-    this.workout.user_id = myid.data
-    this.workout.nick_name = (
-      await this.$axios.$get(`/users?id=${myid.data}`)
-    ).nick_name
+    if (this.$route.query.id) {
+      // 카드 수정
+      const workout = await this.$axios.get(`/cards?id=${this.$route.query.id}`)
+      this.workout.user_id = workout.data.user_id
+      this.workout.nick_name = workout.data.user.nick_name
+      this.workout.content = workout.data.content
+      this.workout.date = m(workout.data.workout_time).format('YYYY-MM-DD')
+      this.workout.time = m(workout.data.workout_time).format('HH:mm:ss')
+      this.workout.location = workout.data.workout_location
+      this.workout.cost = workout.data.workout_cost
+      this.workout.member = workout.data.workout_member
+      this.workout.detail = workout.data.workout_detail.split(',')
+      this.workout.type = workout.data.workout_type
+    } else {
+      // 카드 생성
+      const myid = await this.$axios.get('/myid')
+      this.workout.user_id = myid.data
+      this.workout.nick_name = (
+        await this.$axios.$get(`/users?id=${myid.data}`)
+      ).nick_name
+    }
   },
   methods: {
     async onSubmit(evt) {
       try {
         evt.preventDefault()
         this.wait = true
-        await this.$axios.$post('/cards', this.workout)
+        // 카드 생성, 수정
+        if (this.$route.query.id) {
+          this.workout.id = this.$route.query.id
+          await this.$axios.$patch('/cards', this.workout)
+        } else {
+          await this.$axios.$post('/cards', this.workout)
+        }
         this.$router.push('/')
       } catch (error) {
         alert(error)
@@ -168,6 +198,9 @@ export default {
     onCancel(evt) {
       evt.preventDefault()
       this.$router.push('/')
+    },
+    validator(tag) {
+      return tag.length <= 10
     },
   },
 }

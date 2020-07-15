@@ -12,16 +12,22 @@
         </h4>
       </template>
 
+      <!-- 운동 종목, 태그, 본문 -->
       <b-card-body>
         <b-card-title>{{ item.workout_type }}</b-card-title>
         <b-card-sub-title class="mb-2">{{
           item.workout_detail
         }}</b-card-sub-title>
-        <b-card-text>
-          {{ item.content }}
-        </b-card-text>
+        <p v-if="!readMore">
+          {{ item.content.slice(0, 30) + '...' }}
+          <a href="#" @click="onReadMore"> {{ readLink }} </a>
+        </p>
+        <pre v-if="readMore" style="white-space: pre-line;">
+          {{ item.content }} <a href="#" @click="onReadMore">{{ readLink }}</a>
+        </pre>
       </b-card-body>
 
+      <!-- 장소, 인원, 비용 -->
       <b-list-group flush>
         <b-list-group-item
           >장소 : {{ item.workout_location }}</b-list-group-item
@@ -35,6 +41,7 @@
         </b-list-group-item>
       </b-list-group>
 
+      <!-- 버튼 -->
       <b-card-body>
         <b-button
           v-if="!isOwner"
@@ -79,6 +86,8 @@ export default {
   data() {
     return {
       condition: true,
+      readMore: false,
+      readLink: '더보기',
     }
   },
   computed: {
@@ -124,6 +133,14 @@ export default {
     },
     onUpdate() {
       this.$router.push(`/createCard?id=${this.item.id}`)
+    },
+    onReadMore() {
+      this.readMore = !this.readMore
+      if (this.readMore) {
+        this.readLink = '줄이기'
+      } else {
+        this.readLink = '더보기'
+      }
     },
     onTest() {
       alert(this.myid)
