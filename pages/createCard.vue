@@ -1,7 +1,7 @@
 <template>
   <div>
-    <!-- novalidate -->
-    <b-form validated @submit="onSubmit">
+    <!-- validated-->
+    <b-form id="cardForm" novalidate @submit="onSubmit">
       <b-form-group
         id="input-group-0"
         label="닉네임"
@@ -20,7 +20,7 @@
           id="input-1"
           v-model="workout.type"
           :options="options"
-          required
+          :state="typeState"
         ></b-form-select>
       </b-form-group>
 
@@ -38,8 +38,8 @@
           separator=" "
           placeholder="띄어쓰기로 태그를 구분하세요."
           class="mb-2"
-          :state="tagsState"
-          :tag-validator="validator"
+          :state="detailState"
+          :tag-validator="detailValidator"
           remove-on-delete
         ></b-form-tags>
       </b-form-group>
@@ -53,20 +53,18 @@
           id="example-datepicker"
           v-model="workout.date"
           class="mb-2"
-          required
         ></b-form-datepicker>
         <b-form-timepicker
           id="example-timepicker"
           v-model="workout.time"
           locale="kr"
           class="mb-2"
-          required
         ></b-form-timepicker>
         <b-form-input
           id="input-3"
           v-model="workout.location"
           placeholder="운동 장소를 입력하세요."
-          required
+          :state="locationState"
         ></b-form-input>
       </b-form-group>
 
@@ -82,7 +80,7 @@
               v-model="workout.member"
               type="number"
               pattern="\d*"
-              required
+              :state="memberState"
             ></b-form-input>
           </b-form-group>
         </b-col>
@@ -93,7 +91,7 @@
               v-model="workout.cost"
               type="number"
               pattern="\d*"
-              required
+              :state="costState"
             ></b-form-input>
           </b-form-group>
         </b-col>
@@ -110,7 +108,8 @@
           placeholder="본문을 작성해 주세요."
           rows="3"
           no-resize
-          required
+          maxlength="251"
+          :state="contentState"
         ></b-form-textarea>
       </b-form-group>
 
@@ -150,9 +149,30 @@ export default {
     }
   },
   computed: {
-    tagsState() {
+    detailState() {
       const length = this.workout.detail.length
       return length === 0 ? null : length <= 10
+    },
+    typeState() {
+      return this.workout.type !== null
+    },
+    locationState() {
+      return this.workout.location.length > 0
+    },
+    memberState() {
+      return this.workout.member > 0 && this.workout.member < 100
+    },
+    costState() {
+      return (
+        this.workout.cost >= 0 &&
+        this.workout.cost <= 1000000 &&
+        this.workout.cost.length !== 0
+      )
+    },
+    contentState() {
+      return (
+        this.workout.content.length !== 0 && this.workout.content.length <= 250
+      )
     },
   },
   async mounted() {
@@ -182,6 +202,18 @@ export default {
     async onSubmit(evt) {
       try {
         evt.preventDefault()
+        // validation, 유효성 검증
+        if (
+          !(
+            this.typeState &&
+            this.locationState &&
+            this.memberState &&
+            this.costState
+          )
+        ) {
+          alert('올바르지 않은 입력이 있습니다.')
+          return
+        }
         this.wait = true
         // 카드 생성, 수정
         if (this.$route.query.id) {
@@ -199,7 +231,7 @@ export default {
       evt.preventDefault()
       this.$router.push('/')
     },
-    validator(tag) {
+    detailValidator(tag) {
       return tag.length <= 10
     },
   },

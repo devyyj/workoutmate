@@ -60,6 +60,7 @@ router.patch(
   async (req, res) => {
     try {
       const data = req.body
+      if (data.user_id !== req.user.id) return res.sendStatus(401)
       await cards.update(
         {
           user_id: data.user_id,
@@ -85,14 +86,20 @@ router.patch(
   }
 )
 
-router.delete('/cards', async (req, res) => {
-  try {
-    const data = req.query
-    await cards.destroy({ where: { id: data.id } })
-    res.sendStatus(200)
-  } catch (error) {
-    console.log(error)
+router.delete(
+  '/cards',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    try {
+      const data = req.query
+      if (data.user_id !== req.user.id) return res.sendStatus(401)
+      await cards.destroy({ where: { id: data.id } })
+      res.sendStatus(200)
+    } catch (error) {
+      console.log(error)
+      res.sendStatus(500)
+    }
   }
-})
+)
 
 module.exports = router
