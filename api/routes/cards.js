@@ -8,8 +8,9 @@ const passport = require('../passport')
 const router = Router()
 
 // join 개념 공부 필요!
-cards.belongsTo(users, { foreignKey: 'user_id' })
-users.hasMany(cards, { foreignKey: 'user_id' })
+// 제약조건 설정하지 않기 위해 constraints: false 추가
+// users.hasMany(cards, { foreignKey: 'user_id', constraints: false })
+cards.belongsTo(users, { foreignKey: 'user_id', constraints: false })
 
 router.get('/cards', async function (req, res, next) {
   let data
@@ -23,7 +24,7 @@ router.get('/cards', async function (req, res, next) {
   } else {
     // 카드 검색
     data = await cards.findAll({
-      include: { model: users, required: true },
+      include: { model: users },
       order: [['id', 'DESC']],
     })
   }

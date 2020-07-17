@@ -25,7 +25,7 @@ export default {
   methods: {
     async createCard(e) {
       try {
-        await this.$axios.get('/login')
+        await this.$axios.$get('/login')
         this.$router.push('/createCard')
       } catch (error) {
         alert('로그인 상태가 아닙니다.')

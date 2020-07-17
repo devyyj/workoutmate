@@ -28,7 +28,7 @@
         id="input-group-2"
         label="운동 스타일"
         label-for="tags-pills"
-        description="태그 길이는 10자까지 태그 수는 10개까지 입니다."
+        description="태그 길이는 최대 10자까지, 태그 수는 최대 10개까지입니다."
       >
         <b-form-tags
           v-model="workout.detail"
@@ -74,6 +74,7 @@
             id="input-group-4"
             label="모집 인원"
             label-for="input-4"
+            description="최소 1명, 최대 99명입니다."
           >
             <b-form-input
               id="input-4"
@@ -85,7 +86,12 @@
           </b-form-group>
         </b-col>
         <b-col>
-          <b-form-group id="input-group-5" label="비용" label-for="input-5">
+          <b-form-group
+            id="input-group-5"
+            label="비용"
+            label-for="input-5"
+            description="최소 0원, 최대 100만 원입니다."
+          >
             <b-form-input
               id="input-5"
               v-model="workout.cost"
@@ -149,6 +155,7 @@ export default {
     }
   },
   computed: {
+    // state()로 유효성 체크
     detailState() {
       const length = this.workout.detail.length
       return length === 0 ? null : length <= 10
@@ -178,24 +185,25 @@ export default {
   async mounted() {
     if (this.$route.query.id) {
       // 카드 수정
-      const workout = await this.$axios.get(`/cards?id=${this.$route.query.id}`)
-      this.workout.user_id = workout.data.user_id
-      this.workout.nick_name = workout.data.user.nick_name
-      this.workout.content = workout.data.content
-      this.workout.date = m(workout.data.workout_time).format('YYYY-MM-DD')
-      this.workout.time = m(workout.data.workout_time).format('HH:mm:ss')
-      this.workout.location = workout.data.workout_location
-      this.workout.cost = workout.data.workout_cost
-      this.workout.member = workout.data.workout_member
-      this.workout.detail = workout.data.workout_detail.split(',')
-      this.workout.type = workout.data.workout_type
+      const workout = await this.$axios.$get(
+        `/cards?id=${this.$route.query.id}`
+      )
+      this.workout.user_id = workout.user_id
+      this.workout.nick_name = workout.user.nick_name
+      this.workout.content = workout.content
+      this.workout.date = m(workout.workout_time).format('YYYY-MM-DD')
+      this.workout.time = m(workout.workout_time).format('HH:mm:ss')
+      this.workout.location = workout.workout_location
+      this.workout.cost = workout.workout_cost
+      this.workout.member = workout.workout_member
+      this.workout.detail = workout.workout_detail.split(',')
+      this.workout.type = workout.workout_type
     } else {
       // 카드 생성
-      const myid = await this.$axios.get('/myid')
-      this.workout.user_id = myid.data
-      this.workout.nick_name = (
-        await this.$axios.$get(`/users?id=${myid.data}`)
-      ).nick_name
+      const myid = await this.$axios.$get('/myid')
+      this.workout.user_id = myid
+      const data = await this.$axios.$get(`/users?id=${myid}`)
+      this.workout.nick_name = data.nick_name
     }
   },
   methods: {
@@ -208,10 +216,11 @@ export default {
             this.typeState &&
             this.locationState &&
             this.memberState &&
-            this.costState
+            this.costState &&
+            this.detailState !== false
           )
         ) {
-          alert('올바르지 않은 입력이 있습니다.')
+          alert('카드 양식이 올바르지 않습니다.')
           return
         }
         this.wait = true

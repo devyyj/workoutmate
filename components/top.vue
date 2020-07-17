@@ -17,13 +17,41 @@
           <b-nav-item v-if="isLogin" href="#" @click="logout"
             >로그아웃</b-nav-item
           >
-          <b-nav-item v-if="isLogin" href="#" @click="unlinkApp"
-            >탈퇴</b-nav-item
-          >
-          <b-nav-item v-if="isLogin" href="#" @click="setting">설정</b-nav-item>
+          <b-nav-item-dropdown v-if="isLogin" text="설정" right>
+            <b-dropdown-item v-b-modal.set-nick-name href="#"
+              >닉네임</b-dropdown-item
+            >
+            <b-dropdown-item href="#" @click="unlinkApp">탈퇴</b-dropdown-item>
+          </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
+    <b-modal
+      id="set-nick-name"
+      ref="modal"
+      title="닉네임을 설정하세요."
+      @show="resetModal"
+      @hidden="resetModal"
+      @ok="handleOk"
+    >
+      <form @submit.stop.prevent="handleSubmit">
+        <!-- description을 multi line으로 하고 싶은데 안되는 것 같다. -->
+        <b-form-group
+          :state="nicknameState"
+          label="닉네임"
+          label-for="nickname-input"
+          description="한글, 영문, 숫자만 가능합니다.(최소 1글자, 최대 10글자.)"
+        >
+          <b-form-input
+            id="nickname-input"
+            v-model="nickname"
+            :state="nicknameState"
+            maxlength="11"
+            autofocus
+          ></b-form-input>
+        </b-form-group>
+      </form>
+    </b-modal>
   </div>
 </template>
 
@@ -31,19 +59,27 @@
 export default {
   data() {
     return {
-      // isLogin: false,
+      nickname: '',
     }
   },
   computed: {
     isLogin() {
       return this.$store.state.isLogin
     },
+    nicknameState() {
+      const regex = /^[가-힣|a-z|A-Z|0-9]+$/
+      return (
+        regex.test(this.nickname) &&
+        this.nickname.length >= 1 &&
+        this.nickname.length <= 10
+      )
+    },
   },
   async mounted() {
     // init은 최초에 한번!
     window.Kakao.init('c5d4b6ee6c437fd80a93fc64ca9982f9')
     try {
-      await this.$axios.get('/login')
+      await this.$axios.$get('/login')
       this.$store.commit('login')
     } catch (error) {
       this.$store.commit('logout')
@@ -94,13 +130,14 @@ export default {
         },
       })
     },
+    // 로그아웃
     async logout() {
       if (!this.$store.state.isLogin) {
         alert('로그인 상태가 아닙니다.')
         return
       }
       try {
-        await this.$axios.get('/logout')
+        await this.$axios.$get('/logout')
         this.$store.commit('logout')
         alert(`로그아웃 되었습니다.`)
         this.$router.push('/')
@@ -116,7 +153,7 @@ export default {
           success: async (res) => {
             try {
               await this.$axios.$delete(`/users`)
-              await this.$axios.get('/logout')
+              await this.$axios.$get('/logout')
               this.$store.commit('logout')
               alert('서비스 탈퇴에 성공했습니다.')
               this.$router.push('/')
@@ -130,9 +167,34 @@ export default {
         })
       }
     },
-    setting() {
-      alert('준비중...')
+    // ==================================== 여기부터
+    resetModal() {
+      this.nickname = ''
     },
+    handleOk(bvModalEvt) {
+      // Prevent modal from closing
+      bvModalEvt.preventDefault()
+      // Trigger submit handler
+      this.handleSubmit()
+    },
+    async handleSubmit() {
+      // Exit when the form isn't valid
+      if (!this.nicknameState) {
+        return
+      }
+      try {
+        await this.$axios.$patch('/users', { nick_name: this.nickname })
+      } catch (error) {
+        alert(error)
+        return
+      }
+      // Hide the modal manually
+      this.$nextTick(() => {
+        this.$bvModal.hide('set-nick-name')
+      })
+      this.$router.go()
+    },
+    // ==================================== 여기까지, 닉네임 변경 Modal 관련 함수
   },
 }
 </script>

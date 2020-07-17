@@ -8,7 +8,7 @@
     >
       <template v-slot:header>
         <h4 class="mb-0">
-          {{ item.user.nick_name }}
+          {{ item.user === null ? '' : item.user.nick_name }}
         </h4>
       </template>
 
@@ -124,7 +124,7 @@ export default {
   methods: {
     async setOwner() {
       try {
-        this.myid = String((await this.$axios.get('/myid')).data)
+        this.myid = String(await this.$axios.$get('/myid'))
         if (this.myid === this.item.user_id) {
           this.owner = true
         }
