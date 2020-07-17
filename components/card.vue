@@ -5,12 +5,15 @@
       img-src="https://placekitten.com/380/200"
       img-alt="Image"
       img-top
+      header-bg-variant="primary"
+      header-text-variant="white"
     >
-      <template v-slot:header>
-        <h4 class="mb-0">
+      <b-list-group flush>
+        <b-list-group-item>
+          <b-avatar href="#foo"></b-avatar>
           {{ item.user === null ? '' : item.user.nick_name }}
-        </h4>
-      </template>
+        </b-list-group-item>
+      </b-list-group>
 
       <!-- 운동 종목, 태그, 본문 -->
       <b-card-body>
@@ -18,13 +21,13 @@
         <b-card-sub-title class="mb-2">{{
           item.workout_detail
         }}</b-card-sub-title>
-        <p v-if="!readMore">
+        <b-card-text v-if="!readMore">
           <!-- 본문의 길이가 30보다 길때만 더보기 버튼을 생성, isLongContent -->
           {{ isLongContent ? item.content.slice(0, 30) + '...' : item.content }}
           <a v-if="isLongContent" href="#" @click="onReadMore">
             {{ readLink }}
           </a>
-        </p>
+        </b-card-text>
         <pre v-if="readMore" style="white-space: pre-line;">
           {{ item.content }} <a href="#" @click="onReadMore">{{ readLink }}</a>
         </pre>
@@ -36,8 +39,8 @@
           >장소 : {{ item.workout_location }}</b-list-group-item
         >
         <b-list-group-item>시간 : {{ createTime }}</b-list-group-item>
-        <b-list-group-item
-          >모집 인원 : {{ item.workout_member }}
+        <b-list-group-item>
+          <b-link>크루 : {{ item.workout_member }} 명</b-link>
         </b-list-group-item>
         <b-list-group-item
           >비용 : {{ item.workout_cost }} 원
@@ -46,11 +49,7 @@
 
       <!-- 버튼 -->
       <b-card-body>
-        <b-button
-          v-if="!isOwner"
-          block
-          variant="outline-primary"
-          @click="onTest"
+        <b-button v-if="!isOwner" block variant="outline-primary"
           >참여</b-button
         >
         <b-button
@@ -69,7 +68,7 @@
         >
       </b-card-body>
 
-      <b-card-footer>댓글?</b-card-footer>
+      <!-- <b-card-footer></b-card-footer> -->
     </b-card>
     <br />
   </b-col>
@@ -152,9 +151,6 @@ export default {
       } else {
         this.readLink = '더보기'
       }
-    },
-    onTest() {
-      alert(this.myid)
     },
   },
 }

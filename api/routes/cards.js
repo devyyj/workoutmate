@@ -93,7 +93,6 @@ router.delete(
   async (req, res) => {
     try {
       const data = req.query
-      if (data.user_id !== req.user.id) return res.sendStatus(401)
       await cards.destroy({ where: { id: data.id } })
       res.sendStatus(200)
     } catch (error) {
