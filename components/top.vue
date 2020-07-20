@@ -56,6 +56,8 @@
 </template>
 
 <script>
+import { initMyid } from '../common/common'
+
 export default {
   data() {
     return {
@@ -79,8 +81,11 @@ export default {
     // init은 최초에 한번!
     window.Kakao.init('c5d4b6ee6c437fd80a93fc64ca9982f9')
     try {
-      await this.$axios.$get('/login')
+      // 로그인 상태 저장
+      await this.$axios.$get('/isLogin')
       this.$store.commit('login')
+      // myid를 store에 저장
+      initMyid(this)
     } catch (error) {
       this.$store.commit('logout')
     }
@@ -140,6 +145,8 @@ export default {
         await this.$axios.$get('/logout')
         this.$store.commit('logout')
         alert(`로그아웃 되었습니다.`)
+        // 로그아웃 했을때 Card 버튼(수정, 삭제) 상태를 바꾼다.
+        this.$nuxt.$emit('setOwner')
         this.$router.push('/')
       } catch (error) {
         alert(error)
@@ -153,10 +160,7 @@ export default {
           success: async (res) => {
             try {
               await this.$axios.$delete(`/users`)
-              await this.$axios.$get('/logout')
-              this.$store.commit('logout')
-              alert('서비스 탈퇴에 성공했습니다.')
-              this.$router.push('/')
+              this.logout()
             } catch (error) {
               alert(error)
             }

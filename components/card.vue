@@ -17,10 +17,8 @@
 
       <!-- 운동 종목, 태그, 본문 -->
       <b-card-body>
-        <b-card-title>{{ item.workout_type }}</b-card-title>
-        <b-card-sub-title class="mb-2">{{
-          item.workout_detail
-        }}</b-card-sub-title>
+        <b-card-title>{{ item.type }}</b-card-title>
+        <b-card-sub-title class="mb-2">{{ item.detail }}</b-card-sub-title>
         <b-card-text v-if="!readMore">
           <!-- 본문의 길이가 30보다 길때만 더보기 버튼을 생성, isLongContent -->
           {{ isLongContent ? item.content.slice(0, 30) + '...' : item.content }}
@@ -35,22 +33,18 @@
 
       <!-- 장소, 인원, 비용 -->
       <b-list-group flush>
-        <b-list-group-item
-          >장소 : {{ item.workout_location }}</b-list-group-item
-        >
+        <b-list-group-item>장소 : {{ item.location }}</b-list-group-item>
         <b-list-group-item>시간 : {{ createTime }}</b-list-group-item>
         <b-list-group-item>
-          <b-link>크루 : {{ item.workout_member }} 명</b-link>
+          <b-link>크루 : {{ crewCount }} / {{ item.max }} 명</b-link>
         </b-list-group-item>
-        <b-list-group-item
-          >비용 : {{ item.workout_cost }} 원
-        </b-list-group-item>
+        <b-list-group-item>비용 : {{ item.cost }} 원 </b-list-group-item>
       </b-list-group>
 
       <!-- 버튼 -->
       <b-card-body>
-        <b-button v-if="!isOwner" block variant="outline-primary"
-          >참여</b-button
+        <b-button v-if="!isOwner" block variant="outline-primary" @click="join">
+          {{ isJoined ? '참여 취소' : '참여' }}</b-button
         >
         <b-button
           v-if="isOwner"
@@ -76,6 +70,8 @@
 
 <script>
 import m from 'moment'
+import { getMyid } from '../common/common'
+
 export default {
   props: {
     item: {
@@ -97,18 +93,25 @@ export default {
   },
   computed: {
     createTime() {
-      return m(this.item.workout_time).format('YYYY-MM-DD HH:mm:ss')
+      return m(this.item.time).format('YYYY-MM-DD HH:mm:ss')
     },
     // 로그인 유무에 따라 수정, 삭제 버튼을 보이게 함
     // 게시글을 작성한 사람만 수정, 삭제 버튼을 볼 수 있다
     isOwner() {
       return this.owner && this.$store.state.isLogin
     },
-    isLogin() {
-      return this.$store.state.isLogin
-    },
     isLongContent() {
       return this.item.content.length > 30
+    },
+    crewCount() {
+      return this.item.crew.split(',').length - 1
+    },
+    isJoined() {
+      let result = false
+      if (this.myid) {
+        result = this.item.crew.split(',').includes(this.myid)
+      }
+      return result
     },
   },
   created() {
@@ -122,12 +125,12 @@ export default {
   },
   methods: {
     async setOwner() {
-      try {
-        this.myid = String(await this.$axios.$get('/myid'))
-        if (this.myid === this.item.user_id) {
-          this.owner = true
-        }
-      } catch (error) {}
+      this.myid = await getMyid(this)
+      if (this.myid === this.item.user_id) {
+        this.owner = true
+      } else {
+        this.owner = false
+      }
     },
     async onDelete() {
       try {
@@ -150,6 +153,30 @@ export default {
         this.readLink = '줄이기'
       } else {
         this.readLink = '더보기'
+      }
+    },
+    // join 유무를 따져서 배열에서 id를 제거 또는 추가한다.
+    async join() {
+      try {
+        let msg = ''
+        let crew = this.item.crew.split(',')
+        if (this.isJoined) {
+          crew.splice(crew.indexOf(this.myid), 1)
+          msg = '크루 참여를 취소했습니다.'
+        } else {
+          crew.push(this.myid)
+          msg = '크루에 참여했습니다.'
+        }
+        crew = crew.join()
+        await this.$axios.$patch(`/join`, {
+          id: this.item.id,
+          crew,
+        })
+        this.item.crew = crew
+        alert(msg)
+      } catch (error) {
+        if (error.response.status === 401) alert('로그인 상태가 아닙니다.')
+        else alert(error)
       }
     },
   },

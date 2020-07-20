@@ -10,7 +10,7 @@
       >
         <b-form-input
           id="input-0"
-          v-model="workout.nick_name"
+          v-model="card.nick_name"
           disabled
         ></b-form-input>
       </b-form-group>
@@ -18,7 +18,7 @@
       <b-form-group id="input-group-1" label="함께할 운동" label-for="input-1">
         <b-form-select
           id="input-1"
-          v-model="workout.type"
+          v-model="card.type"
           :options="options"
           :state="typeState"
         ></b-form-select>
@@ -31,7 +31,7 @@
         description="태그 길이는 최대 10자까지, 태그 수는 최대 10개까지입니다."
       >
         <b-form-tags
-          v-model="workout.detail"
+          v-model="card.detail"
           input-id="tags-pills"
           tag-variant="primary"
           tag-pills
@@ -51,18 +51,18 @@
       >
         <b-form-datepicker
           id="example-datepicker"
-          v-model="workout.date"
+          v-model="card.date"
           class="mb-2"
         ></b-form-datepicker>
         <b-form-timepicker
           id="example-timepicker"
-          v-model="workout.time"
+          v-model="card.time"
           locale="kr"
           class="mb-2"
         ></b-form-timepicker>
         <b-form-input
           id="input-3"
-          v-model="workout.location"
+          v-model="card.location"
           placeholder="운동 장소를 입력하세요."
           :state="locationState"
         ></b-form-input>
@@ -78,10 +78,10 @@
           >
             <b-form-input
               id="input-4"
-              v-model="workout.member"
+              v-model="card.max"
               type="number"
               pattern="\d*"
-              :state="memberState"
+              :state="maxState"
             ></b-form-input>
           </b-form-group>
         </b-col>
@@ -94,7 +94,7 @@
           >
             <b-form-input
               id="input-5"
-              v-model="workout.cost"
+              v-model="card.cost"
               type="number"
               pattern="\d*"
               :state="costState"
@@ -110,7 +110,7 @@
       >
         <b-form-textarea
           id="textarea-no-resize"
-          v-model="workout.content"
+          v-model="card.content"
           placeholder="본문을 작성해 주세요."
           rows="3"
           no-resize
@@ -130,15 +130,15 @@ import m from 'moment'
 export default {
   data() {
     return {
-      workout: {
+      card: {
         user_id: '',
         nick_name: '',
         content: '',
         date: m().format('YYYY-MM-DD'),
         time: m().format('HH:mm:ss'),
         location: '',
-        cost: 0,
-        member: 1,
+        cost: '0',
+        max: '1',
         detail: [],
         type: null,
       },
@@ -157,53 +157,49 @@ export default {
   computed: {
     // state()로 유효성 체크
     detailState() {
-      const length = this.workout.detail.length
+      const length = this.card.detail.length
       return length === 0 ? null : length <= 10
     },
     typeState() {
-      return this.workout.type !== null
+      return this.card.type !== null
     },
     locationState() {
-      return this.workout.location.length > 0
+      return this.card.location.length > 0
     },
-    memberState() {
-      return this.workout.member > 0 && this.workout.member < 100
+    maxState() {
+      return this.card.max > 0 && this.card.max < 100
     },
     costState() {
       return (
-        this.workout.cost >= 0 &&
-        this.workout.cost <= 1000000 &&
-        this.workout.cost.length !== 0
+        this.card.cost >= 0 &&
+        this.card.cost <= 1000000 &&
+        this.card.cost.length !== 0
       )
     },
     contentState() {
-      return (
-        this.workout.content.length !== 0 && this.workout.content.length <= 250
-      )
+      return this.card.content.length !== 0 && this.card.content.length <= 250
     },
   },
   async mounted() {
     if (this.$route.query.id) {
       // 카드 수정
-      const workout = await this.$axios.$get(
-        `/cards?id=${this.$route.query.id}`
-      )
-      this.workout.user_id = workout.user_id
-      this.workout.nick_name = workout.user.nick_name
-      this.workout.content = workout.content
-      this.workout.date = m(workout.workout_time).format('YYYY-MM-DD')
-      this.workout.time = m(workout.workout_time).format('HH:mm:ss')
-      this.workout.location = workout.workout_location
-      this.workout.cost = workout.workout_cost
-      this.workout.member = workout.workout_member
-      this.workout.detail = workout.workout_detail.split(',')
-      this.workout.type = workout.workout_type
+      const card = await this.$axios.$get(`/cards?id=${this.$route.query.id}`)
+      this.card.user_id = card.user_id
+      this.card.nick_name = card.user.nick_name
+      this.card.content = card.content
+      this.card.date = m(card.time).format('YYYY-MM-DD')
+      this.card.time = m(card.time).format('HH:mm:ss')
+      this.card.location = card.location
+      this.card.cost = card.cost
+      this.card.max = card.max
+      this.card.detail = card.detail.split(',')
+      this.card.type = card.type
     } else {
       // 카드 생성
       const myid = await this.$axios.$get('/myid')
-      this.workout.user_id = myid
+      this.card.user_id = myid
       const data = await this.$axios.$get(`/users?id=${myid}`)
-      this.workout.nick_name = data.nick_name
+      this.card.nick_name = data.nick_name
     }
   },
   methods: {
@@ -215,7 +211,7 @@ export default {
           !(
             this.typeState &&
             this.locationState &&
-            this.memberState &&
+            this.maxState &&
             this.costState &&
             this.detailState !== false
           )
@@ -226,10 +222,10 @@ export default {
         this.wait = true
         // 카드 생성, 수정
         if (this.$route.query.id) {
-          this.workout.id = this.$route.query.id
-          await this.$axios.$patch('/cards', this.workout)
+          this.card.id = this.$route.query.id
+          await this.$axios.$patch('/cards', this.card)
         } else {
-          await this.$axios.$post('/cards', this.workout)
+          await this.$axios.$post('/cards', this.card)
         }
         this.$router.push('/')
       } catch (error) {

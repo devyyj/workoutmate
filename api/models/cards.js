@@ -6,19 +6,26 @@ module.exports = sequelize.define(
   {
     user_id: { type: DataTypes.STRING, allowNull: false },
     content: { type: DataTypes.STRING, allowNull: false },
-    workout_time: { type: DataTypes.DATE, allowNull: false },
-    workout_location: { type: DataTypes.STRING, allowNull: false },
-    workout_member: {
+    time: { type: DataTypes.DATE, allowNull: false },
+    location: { type: DataTypes.STRING, allowNull: false },
+    type: { type: DataTypes.STRING, allowNull: false },
+    detail: { type: DataTypes.STRING, allowNull: false },
+    max: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: '1',
     },
-    workout_type: { type: DataTypes.STRING, allowNull: false },
-    workout_detail: { type: DataTypes.STRING, allowNull: false },
-    workout_cost: {
+    cost: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: '0',
+    },
+    crew: {
+      type: DataTypes.STRING(1100),
+      allowNull: false,
+      defaultValue: '',
+      comment:
+        '콤마로 유저 ID를 구분한다. ID + 콤마(10 + 1) * 최대 참여 인원(99) < 1100',
     },
   },
   {

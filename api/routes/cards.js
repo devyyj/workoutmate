@@ -40,12 +40,12 @@ router.post(
       await cards.create({
         user_id: data.user_id,
         content: data.content,
-        workout_time: m(`${data.date}T${data.time}+09:00`),
-        workout_location: data.location,
-        workout_member: data.member,
-        workout_type: data.type,
-        workout_detail: data.detail.join(),
-        workout_cost: data.cost,
+        time: m(`${data.date}T${data.time}+09:00`),
+        location: data.location,
+        max: data.max,
+        type: data.type,
+        detail: data.detail.join(),
+        cost: data.cost,
       })
       res.sendStatus(200)
     } catch (e) {
@@ -66,12 +66,12 @@ router.patch(
         {
           user_id: data.user_id,
           content: data.content,
-          workout_time: m(`${data.date}T${data.time}+09:00`),
-          workout_location: data.location,
-          workout_member: data.member,
-          workout_type: data.type,
-          workout_detail: data.detail.join(),
-          workout_cost: data.cost,
+          time: m(`${data.date}T${data.time}+09:00`),
+          location: data.location,
+          max: data.max,
+          type: data.type,
+          detail: data.detail.join(),
+          cost: data.cost,
         },
         {
           where: {
@@ -97,6 +97,31 @@ router.delete(
       res.sendStatus(200)
     } catch (error) {
       console.log(error)
+      res.sendStatus(500)
+    }
+  }
+)
+
+// 여기 이 함수가 있어도 될까...?
+router.patch(
+  '/join',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    try {
+      const data = req.body
+
+      await cards.update(
+        {
+          crew: data.crew,
+        },
+        {
+          where: {
+            id: data.id,
+          },
+        }
+      )
+      res.sendStatus(200)
+    } catch (error) {
       res.sendStatus(500)
     }
   }

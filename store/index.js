@@ -1,6 +1,6 @@
 export const state = () => ({
   isLogin: false,
-  isOwner: false,
+  myid: '',
 })
 
 export const mutations = {
@@ -10,10 +10,7 @@ export const mutations = {
   logout(state) {
     state.isLogin = false
   },
-  owner(state) {
-    state.isOwner = true
-  },
-  notOwner(state) {
-    state.isOwner = false
+  setMyid(state, myid) {
+    state.myid = myid
   },
 }

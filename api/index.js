@@ -19,7 +19,7 @@ app.get('/', function (req, res) {
 
 // 로그인 상태 확인. 토큰이 없으면 401 리턴.
 app.get(
-  '/login',
+  '/isLogin',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     res.sendStatus(200)
