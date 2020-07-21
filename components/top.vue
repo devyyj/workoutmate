@@ -85,7 +85,7 @@ export default {
       await this.$axios.$get('/isLogin')
       this.$store.commit('login')
       // myid를 store에 저장
-      initMyid(this)
+      await initMyid(this)
     } catch (error) {
       this.$store.commit('logout')
     }
@@ -147,6 +147,8 @@ export default {
         alert(`로그아웃 되었습니다.`)
         // 로그아웃 했을때 Card 버튼(수정, 삭제) 상태를 바꾼다.
         this.$nuxt.$emit('setOwner')
+        // 로그아웃하면 myid 초기화
+        initMyid(this)
         this.$router.push('/')
       } catch (error) {
         alert(error)
@@ -189,7 +191,8 @@ export default {
       try {
         await this.$axios.$patch('/users', { nick_name: this.nickname })
       } catch (error) {
-        alert(error)
+        if (error.response.status === 400) alert('이미 사용중인 닉네임입니다.')
+        else alert(error)
         return
       }
       // Hide the modal manually

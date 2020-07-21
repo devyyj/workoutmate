@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- 한줄에 3개 이상 들어가면 화면이 밀린다! 수정 요망 -->
     <b-row>
       <card v-for="(item, index) in items" :key="index" :item="item"></card>
     </b-row>

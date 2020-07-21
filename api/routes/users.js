@@ -5,10 +5,18 @@ const router = Router()
 
 const passport = require('../passport')
 
-router.get('/users', async (req, res) => {
-  const data = req.query
-  res.send(await users.findOne({ where: { id: data.id } }))
-})
+router.get(
+  '/users',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    try {
+      res.send(await users.findOne({ where: { id: req.user.id } }))
+    } catch (error) {
+      console.log(error)
+      res.sendStatus(500)
+    }
+  }
+)
 
 router.post('/users', async (req, res) => {
   try {
@@ -20,6 +28,7 @@ router.post('/users', async (req, res) => {
     res.sendStatus(200)
   } catch (error) {
     console.log(error)
+    res.sendStatus(500)
   }
 })
 
@@ -35,8 +44,8 @@ router.patch(
       )
       res.sendStatus(200)
     } catch (error) {
-      console.log(error)
-      res.sendStatus(500)
+      if (error.errors[0].type === 'unique violation') res.sendStatus(400)
+      else res.sendStatus(500)
     }
   }
 )

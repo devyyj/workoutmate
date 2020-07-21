@@ -2,7 +2,9 @@ async function initMyid(vue) {
   try {
     const myid = String(await vue.$axios.$get('/myid'))
     await vue.$store.commit('setMyid', myid)
-  } catch (error) {}
+  } catch (error) {
+    await vue.$store.commit('setMyid', '')
+  }
 }
 
 async function getMyid(vue) {

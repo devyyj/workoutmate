@@ -181,25 +181,27 @@ export default {
     },
   },
   async mounted() {
-    if (this.$route.query.id) {
-      // 카드 수정
-      const card = await this.$axios.$get(`/cards?id=${this.$route.query.id}`)
-      this.card.user_id = card.user_id
-      this.card.nick_name = card.user.nick_name
-      this.card.content = card.content
-      this.card.date = m(card.time).format('YYYY-MM-DD')
-      this.card.time = m(card.time).format('HH:mm:ss')
-      this.card.location = card.location
-      this.card.cost = card.cost
-      this.card.max = card.max
-      this.card.detail = card.detail.split(',')
-      this.card.type = card.type
-    } else {
-      // 카드 생성
-      const myid = await this.$axios.$get('/myid')
-      this.card.user_id = myid
-      const data = await this.$axios.$get(`/users?id=${myid}`)
-      this.card.nick_name = data.nick_name
+    try {
+      if (this.$route.query.id) {
+        // 카드 수정
+        const card = await this.$axios.$get(`/cards?id=${this.$route.query.id}`)
+        this.card.user_id = card.user_id
+        this.card.nick_name = card.user.nick_name
+        this.card.content = card.content
+        this.card.date = m(card.time).format('YYYY-MM-DD')
+        this.card.time = m(card.time).format('HH:mm:ss')
+        this.card.location = card.location
+        this.card.cost = card.cost
+        this.card.max = card.max
+        this.card.detail = card.detail.split(',')
+        this.card.type = card.type
+      } else {
+        // 카드 생성
+        const data = await this.$axios.$get(`/users`)
+        this.card.nick_name = data.nick_name
+      }
+    } catch (error) {
+      alert(error)
     }
   },
   methods: {

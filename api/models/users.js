@@ -5,7 +5,7 @@ module.exports = sequelize.define(
   'users',
   {
     id: { type: DataTypes.STRING, primaryKey: true, allowNull: false },
-    nick_name: { type: DataTypes.STRING, allowNull: false },
+    nick_name: { type: DataTypes.STRING, unique: true, allowNull: false },
   },
   {
     charset: 'utf8',

@@ -38,7 +38,7 @@ router.post(
     try {
       const data = req.body
       await cards.create({
-        user_id: data.user_id,
+        user_id: req.user.id,
         content: data.content,
         time: m(`${data.date}T${data.time}+09:00`),
         location: data.location,
