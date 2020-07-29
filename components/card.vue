@@ -81,7 +81,7 @@
       >
         <b-list-group>
           <b-list-group-item
-            v-for="(crew, index) in getCrewList"
+            v-for="(crew, index) in crewList"
             :key="index"
             class="d-flex align-items-center"
           >
@@ -116,6 +116,7 @@ export default {
       contentLength: 0,
       owner: false,
       myid: '',
+      crewList: [],
     }
   },
   computed: {
@@ -148,12 +149,6 @@ export default {
     isFull() {
       return this.isJoined === false && this.crewCount / this.item.max === 1
     },
-    getCrewList() {
-      let result
-      if (this.item.crew) result = this.item.crew.split(',')
-      else result = undefined
-      return result
-    },
   },
   created() {
     // 로그인/로그아웃에 따라서 Card 버튼 상태를 변경하기 위한 이벤트 리스너
@@ -163,8 +158,24 @@ export default {
   },
   mounted() {
     this.setOwner()
+    this.setCrewList()
   },
   methods: {
+    // item.crew에 있는 user id로 nick_name을 얻는다.
+    setCrewList() {
+      try {
+        this.crewList = []
+        if (this.item.crew) {
+          const result = this.item.crew.split(',')
+          result.map(async (x) => {
+            const data = await this.$axios.$get(`/users?id=${x}`)
+            this.crewList.push(data.nick_name)
+          })
+        }
+      } catch (error) {
+        alert(error)
+      }
+    },
     async setOwner() {
       this.myid = await getMyid(this)
       if (this.myid === this.item.user_id) {
@@ -215,6 +226,8 @@ export default {
           crew,
         })
         this.item.crew = crew
+        // this.item.crew 가 변경되면 crewList를 다시 설정한다.
+        this.setCrewList()
         alert(msg)
       } catch (error) {
         if (error.response.status === 401) alert('로그인 상태가 아닙니다.')

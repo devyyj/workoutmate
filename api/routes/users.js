@@ -5,18 +5,16 @@ const router = Router()
 
 const passport = require('../passport')
 
-router.get(
-  '/users',
-  passport.authenticate('jwt', { session: false }),
-  async (req, res) => {
-    try {
-      res.send(await users.findOne({ where: { id: req.user.id } }))
-    } catch (error) {
-      console.log(error)
-      res.sendStatus(500)
-    }
+// 사용자 정보를 가져온다. 로그인 상태가 아니어도 API를 사용할 수 있어야 한다.
+// 따라서 인증 미들웨어 추가하지 않는다.
+router.get('/users', async (req, res) => {
+  try {
+    res.send(await users.findOne({ where: { id: req.query.id } }))
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
   }
-)
+})
 
 router.post('/users', async (req, res) => {
   try {
