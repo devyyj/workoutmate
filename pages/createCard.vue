@@ -127,6 +127,8 @@
 
 <script>
 import m from 'moment'
+import { getMyid } from '../common/common'
+
 export default {
   data() {
     return {
@@ -197,7 +199,9 @@ export default {
         this.card.type = card.type
       } else {
         // 카드 생성
-        const data = await this.$axios.$get(`/users`)
+        const myid = await getMyid(this)
+        console.log(myid)
+        const data = await this.$axios.$get(`/users?id=${myid}`)
         this.card.nick_name = data.nick_name
       }
     } catch (error) {
