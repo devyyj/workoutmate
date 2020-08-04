@@ -148,10 +148,6 @@ export default {
       options: [
         { value: null, text: '운동을 선택해 주세요.' },
         { value: '헬스', text: '헬스' },
-        { value: '러닝', text: '러닝' },
-        { value: '워킹', text: '워킹' },
-        { value: '축구', text: '축구' },
-        { value: '등산', text: '등산' },
         { value: '기타', text: '기타' },
       ],
     }
@@ -200,7 +196,6 @@ export default {
       } else {
         // 카드 생성
         const myid = await getMyid(this)
-        console.log(myid)
         const data = await this.$axios.$get(`/users?id=${myid}`)
         this.card.nick_name = data.nick_name
       }

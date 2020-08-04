@@ -121,7 +121,7 @@ export default {
   },
   computed: {
     createTime() {
-      return m(this.item.time).format('YYYY-MM-DD HH:mm:ss')
+      return m(this.item.time).format('YYYY-MM-DD HH:mm')
     },
     // 로그인 유무에 따라 수정, 삭제 버튼을 보이게 함
     // 게시글을 작성한 사람만 수정, 삭제 버튼을 볼 수 있다

@@ -174,8 +174,10 @@ export default {
       }
     },
     // ==================================== 여기부터
-    resetModal() {
-      this.nickname = ''
+    async resetModal() {
+      const myid = this.$store.state.myid
+      const data = await this.$axios.$get(`/users?id=${myid}`)
+      this.nickname = data.nick_name
     },
     handleOk(bvModalEvt) {
       // Prevent modal from closing
