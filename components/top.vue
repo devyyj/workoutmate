@@ -148,7 +148,7 @@ export default {
         // 로그아웃 했을때 Card 버튼(수정, 삭제) 상태를 바꾼다.
         this.$nuxt.$emit('setOwner')
         // 로그아웃하면 myid 초기화
-        initMyid(this)
+        await initMyid(this)
         this.$router.push('/')
       } catch (error) {
         alert(error)

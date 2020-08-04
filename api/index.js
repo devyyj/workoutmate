@@ -27,8 +27,7 @@ app.get(
 )
 
 app.get('/logout', (req, res) => {
-  res.clearCookie('jwt')
-  res.sendStatus(200)
+  res.clearCookie('jwt', { httpOnly: true }).sendStatus(200)
 })
 
 // 내 아이디 확인
