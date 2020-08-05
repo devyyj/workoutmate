@@ -41,7 +41,9 @@
             >크루 : {{ crewCount }} / {{ item.max }} 명</b-link
           >
         </b-list-group-item>
-        <b-list-group-item>비용 : {{ item.cost }} 원 </b-list-group-item>
+        <b-list-group-item
+          >비용 : {{ Number(item.cost) }} 원
+        </b-list-group-item>
       </b-list-group>
 
       <!-- 버튼 -->

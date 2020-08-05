@@ -143,7 +143,7 @@ export default {
         time: m().format('HH:mm:ss'),
         location: '',
         cost: '0',
-        max: '1',
+        max: '2',
         detail: [],
         type: null,
       },
@@ -156,7 +156,7 @@ export default {
     }
   },
   computed: {
-    // state()로 유효성 체크
+    // state 함수로 유효성 체크
     detailState() {
       const length = this.card.detail.length
       return length === 0 ? null : length <= 10
