@@ -11,7 +11,7 @@ export default {
   components: {
     top,
   },
-  mounted() {},
+  beforeMount() {},
 }
 </script>
 

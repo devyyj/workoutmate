@@ -1,7 +1,8 @@
 <template>
   <div>
-    <!-- validated-->
-    <b-form id="cardForm" novalidate @submit="onSubmit">
+    <!-- @submit.prevent에 아무것도 할당하지 않음으로써
+    text input에서 enter를 눌렀을때 submit이 호출되는 경우를 방지한다 -->
+    <b-form id="cardForm" novalidate @submit.prevent>
       <b-form-group
         id="input-group-0"
         label="닉네임"
@@ -74,7 +75,7 @@
             id="input-group-4"
             label="모집 인원"
             label-for="input-4"
-            description="최소 1명, 최대 99명입니다."
+            description="최소 2명, 최대 99명입니다."
           >
             <b-form-input
               id="input-4"
@@ -119,7 +120,9 @@
         ></b-form-textarea>
       </b-form-group>
 
-      <b-button type="submit" variant="primary" :disabled="wait">등록</b-button>
+      <b-button variant="primary" :disabled="wait" @click="onSubmit"
+        >등록</b-button
+      >
       <b-button type="reset" variant="danger" @click="onCancel">취소</b-button>
     </b-form>
   </div>
@@ -165,20 +168,21 @@ export default {
       return this.card.location.length > 0
     },
     maxState() {
-      return this.card.max > 0 && this.card.max < 100
+      return this.card.max > 1 && this.card.max < 100
     },
     costState() {
       return (
         this.card.cost >= 0 &&
         this.card.cost <= 1000000 &&
-        this.card.cost.length !== 0
+        this.card.cost.length !== 0 &&
+        this.card.cost.length <= 7
       )
     },
     contentState() {
       return this.card.content.length !== 0 && this.card.content.length <= 250
     },
   },
-  async mounted() {
+  async beforeMount() {
     try {
       if (this.$route.query.id) {
         // 카드 수정
@@ -214,6 +218,7 @@ export default {
             this.locationState &&
             this.maxState &&
             this.costState &&
+            this.contentState &&
             this.detailState !== false
           )
         ) {

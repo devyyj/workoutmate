@@ -47,7 +47,6 @@
       <!-- 버튼 -->
       <b-card-body>
         <b-button
-          v-if="!isOwner"
           block
           variant="outline-primary"
           :disabled="isFull"
@@ -98,6 +97,7 @@
 <script>
 import m from 'moment'
 import { getMyid } from '../common/common'
+import 'moment/locale/ko'
 
 export default {
   props: {
@@ -121,7 +121,7 @@ export default {
   },
   computed: {
     createTime() {
-      return m(this.item.time).format('YYYY-MM-DD HH:mm')
+      return m(this.item.time).calendar()
     },
     // 로그인 유무에 따라 수정, 삭제 버튼을 보이게 함
     // 게시글을 작성한 사람만 수정, 삭제 버튼을 볼 수 있다
@@ -156,7 +156,13 @@ export default {
       this.setOwner()
     })
   },
-  mounted() {
+  beforeMount() {
+    // 로그인 하지 않았을 때 새로고침하면 'GET http://localhost:8080/api/myid 401 (Unauthorized)'
+    // 에러가 카드 수만큼 콘솔에 발생한다.
+    // 로그인 안된 경우에는 해당 API를 호출하지 않으면 되지만
+    // 새로고침 했을때 로그인 유무를 체크하면 결국 API를 다시 호출해야한다.
+    // store에 로그인 유무를 저장할 수 있지만 card 컴포넌트가 생성되기 전에 저장해야한다.
+    // top 컴포넌트는 card 컴포넌트보다 늦게 생성이 완료된다.
     this.setOwner()
     this.setCrewList()
   },

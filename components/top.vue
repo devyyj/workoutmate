@@ -30,8 +30,6 @@
       id="set-nick-name"
       ref="modal"
       title="닉네임을 설정하세요."
-      @show="resetModal"
-      @hidden="resetModal"
       @ok="handleOk"
     >
       <form @submit.stop.prevent="handleSubmit">
@@ -56,7 +54,7 @@
 </template>
 
 <script>
-import { initMyid } from '../common/common'
+import { initMyid, getMyid } from '../common/common'
 
 export default {
   data() {
@@ -77,7 +75,7 @@ export default {
       )
     },
   },
-  async mounted() {
+  async beforeMount() {
     // init은 최초에 한번!
     window.Kakao.init('c5d4b6ee6c437fd80a93fc64ca9982f9')
     try {
@@ -102,6 +100,8 @@ export default {
           // 로그인 했을때 Card 버튼(수정, 삭제) 상태를 바꾼다.
           this.$nuxt.$emit('setOwner')
           this.$router.push('/')
+          await this.setNickname()
+          alert(`'${this.nickname}'님, 로그인하셨습니다.`)
         },
         fail(error) {
           alert(
@@ -148,7 +148,7 @@ export default {
         await this.$axios.setHeader('Cache-Control', 'no-cache')
         await this.$axios.$get('/logout')
         this.$store.commit('logout')
-        alert(`로그아웃 되었습니다.`)
+        alert(`로그아웃되었습니다.`)
         // 로그아웃 했을때 Card 버튼(수정, 삭제) 상태를 바꾼다.
         this.$nuxt.$emit('setOwner')
         // 로그아웃하면 myid 초기화
@@ -177,12 +177,14 @@ export default {
         })
       }
     },
-    // ==================================== 여기부터
-    async resetModal() {
-      const myid = this.$store.state.myid
-      const data = await this.$axios.$get(`/users?id=${myid}`)
-      this.nickname = data.nick_name
+    async setNickname() {
+      try {
+        const myid = await getMyid(this)
+        const data = await this.$axios.$get(`/users?id=${myid}`)
+        this.nickname = data.nick_name
+      } catch (error) {}
     },
+    // ==================================== 여기부터
     handleOk(bvModalEvt) {
       // Prevent modal from closing
       bvModalEvt.preventDefault()
