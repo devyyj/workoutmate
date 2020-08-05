@@ -142,6 +142,10 @@ export default {
         return
       }
       try {
+        // 개발 모드에서는 문제 없으나 운영 서버에 배포하면 NGINX를 거치기 때문에
+        // no-cache 설정을 안하면 로그아웃 할때 캐시 삭제가 안된다.
+        // 왜 그런지 정확한 이유를 모르겠다...
+        await this.$axios.setHeader('Cache-Control', 'no-cache')
         await this.$axios.$get('/logout')
         this.$store.commit('logout')
         alert(`로그아웃 되었습니다.`)

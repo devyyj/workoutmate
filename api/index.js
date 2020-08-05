@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const passport = require('./passport')
+const config = require('./config')
 const app = express()
 
 app.use(passport.initialize())
@@ -27,7 +28,9 @@ app.get(
 )
 
 app.get('/logout', (req, res) => {
-  res.clearCookie('jwt', { httpOnly: true }).sendStatus(200)
+  res
+    .clearCookie('jwt', { domain: config.domain, httpOnly: true })
+    .sendStatus(200)
 })
 
 // 내 아이디 확인

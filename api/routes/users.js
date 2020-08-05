@@ -1,6 +1,7 @@
 import { Router } from 'express'
 const jwt = require('jsonwebtoken')
 const users = require('../models/users')
+const config = require('../config')
 const router = Router()
 
 const passport = require('../passport')
@@ -22,8 +23,12 @@ router.post('/users', async (req, res) => {
     if (!(await users.findOne({ where: { id: data.id } }))) {
       await users.create({ id: data.id, nick_name: data.id })
     }
-    res.cookie('jwt', jwt.sign({ id: data.id }, 'secret'), { httpOnly: true })
-    res.sendStatus(200)
+    res
+      .cookie('jwt', jwt.sign({ id: data.id }, 'secret'), {
+        domain: config.domain,
+        httpOnly: true,
+      })
+      .sendStatus(200)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

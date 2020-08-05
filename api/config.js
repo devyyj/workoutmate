@@ -7,4 +7,5 @@ module.exports = {
     port: '3306',
     name: 'workoutmate',
   },
+  domain: process.env.DOMAIN || 'localhost',
 }
