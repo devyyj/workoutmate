@@ -10,7 +10,8 @@
     >
       <b-list-group flush>
         <b-list-group-item>
-          <b-avatar href="#"></b-avatar>
+          <!-- <b-avatar href="#"></b-avatar> -->
+          <b-avatar></b-avatar>
           {{ item.user === null ? '' : item.user.nick_name }}
         </b-list-group-item>
       </b-list-group>
@@ -86,7 +87,8 @@
             :key="index"
             class="d-flex align-items-center"
           >
-            <b-avatar class="mr-3" href="#"></b-avatar>
+            <!-- <b-avatar class="mr-3" href="#"></b-avatar> -->
+            <b-avatar class="mr-3"></b-avatar>
             <span class="mr-auto"> {{ crew }} </span>
           </b-list-group-item>
         </b-list-group>
