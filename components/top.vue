@@ -30,6 +30,7 @@
       id="set-nick-name"
       ref="modal"
       title="닉네임을 설정하세요."
+      @show="setNickname"
       @ok="handleOk"
     >
       <form @submit.stop.prevent="handleSubmit">
