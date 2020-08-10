@@ -36,7 +36,7 @@
       <b-list-group flush>
         <b-list-group-item>
           장소 :
-          <b-link :href="`https://map.kakao.com/link/map/${item.location_id}`">
+          <b-link href="#" @click="openMap(item)">
             {{ `${item.location_name} (${item.location})` }}
           </b-link>
         </b-list-group-item>
@@ -249,6 +249,12 @@ export default {
         if (error.response.status === 401) alert('로그인 상태가 아닙니다.')
         else alert(error)
       }
+    },
+    openMap(param) {
+      window.open(
+        `https://map.kakao.com/link/map/${param.location_id}`,
+        '_blank'
+      )
     },
   },
 }
