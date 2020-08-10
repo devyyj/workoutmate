@@ -34,12 +34,18 @@
 
       <!-- 장소, 인원, 비용 -->
       <b-list-group flush>
-        <b-list-group-item>장소 : {{ item.location }}</b-list-group-item>
+        <b-list-group-item>
+          장소 :
+          <b-link :href="`https://map.kakao.com/link/map/${item.location_id}`">
+            {{ `${item.location_name} (${item.location})` }}
+          </b-link>
+        </b-list-group-item>
         <b-list-group-item>시간 : {{ createTime }}</b-list-group-item>
         <!-- 클릭하면 크루 리스트를 출력한다. 카드마다 Modal이 있기 때문에 ID를 고유하게 부여한다. -->
         <b-list-group-item>
-          <b-link @click="$bvModal.show(String(item.id))"
-            >크루 : {{ crewCount }} / {{ item.max }} 명</b-link
+          크루 :
+          <b-link @click="$bvModal.show(String(item.id))">
+            {{ crewCount }} / {{ item.max }} 명</b-link
           >
         </b-list-group-item>
         <b-list-group-item

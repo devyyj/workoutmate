@@ -36,17 +36,7 @@ export default {
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
     // appkey 환경변수로 뺄것!
-    script: [
-      { src: 'https://developers.kakao.com/sdk/js/kakao.min.js' },
-      {
-        src:
-          '//dapi.kakao.com/v2/maps/sdk.js?appkey=c5d4b6ee6c437fd80a93fc64ca9982f9',
-      },
-      {
-        src:
-          '//dapi.kakao.com/v2/maps/sdk.js?appkey=c5d4b6ee6c437fd80a93fc64ca9982f9&libraries=services',
-      },
-    ],
+    script: [{ src: 'https://developers.kakao.com/sdk/js/kakao.min.js' }],
   },
   /*
    ** Global CSS

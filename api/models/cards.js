@@ -8,6 +8,8 @@ module.exports = sequelize.define(
     content: { type: DataTypes.STRING, allowNull: false },
     time: { type: DataTypes.DATE, allowNull: false },
     location: { type: DataTypes.STRING, allowNull: false },
+    location_id: { type: DataTypes.STRING, allowNull: false },
+    location_name: { type: DataTypes.STRING, allowNull: false },
     type: { type: DataTypes.STRING, allowNull: false },
     detail: { type: DataTypes.STRING, allowNull: false },
     max: {

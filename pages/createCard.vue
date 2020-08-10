@@ -66,9 +66,8 @@
           v-model="card.location"
           placeholder="운동 장소를 입력하세요."
           :state="locationState"
+          @click="$bvModal.show('set-location')"
         ></b-form-input>
-        <!-- 지도 -->
-        <div id="map" style="width: 500px; height: 400px;"></div>
       </b-form-group>
 
       <b-form-row>
@@ -127,6 +126,40 @@
       >
       <b-button type="reset" variant="danger" @click="onCancel">취소</b-button>
     </b-form>
+
+    <b-modal
+      id="set-location"
+      ref="modal"
+      title="장소를 입력하세요."
+      scrollable
+      hide-footer
+      @show="resetModal"
+    >
+      <b-form-group
+        label="주소 또는 키워드를 입력하세요."
+        label-for="location-input"
+      >
+        <b-form-input
+          id="location-input"
+          v-model="locationSearch.keyword"
+          autofocus
+        ></b-form-input>
+      </b-form-group>
+      <b-form-group>
+        <b-button block variant="outline-primary" @click="searchLocation"
+          >주소 검색</b-button
+        >
+      </b-form-group>
+      <div v-for="(item, index) in locationSearch.documents" :key="index">
+        <b-form-group>
+          <b-link @click="setLocation(item)">
+            {{
+              `${item.place_name} (${item.road_address_name}, ${item.address_name})`
+            }}
+          </b-link>
+        </b-form-group>
+      </div>
+    </b-modal>
   </div>
 </template>
 
@@ -144,6 +177,8 @@ export default {
         date: m().format('YYYY-MM-DD'),
         time: m().format('HH:mm:ss'),
         location: '',
+        location_id: '',
+        location_name: '',
         cost: '0',
         max: '2',
         detail: [],
@@ -155,6 +190,10 @@ export default {
         { value: '헬스', text: '헬스' },
         { value: '기타', text: '기타' },
       ],
+      locationSearch: {
+        keyword: '',
+        documents: [],
+      },
     }
   },
   computed: {
@@ -195,6 +234,8 @@ export default {
         this.card.date = m(card.time).format('YYYY-MM-DD')
         this.card.time = m(card.time).format('HH:mm:ss')
         this.card.location = card.location
+        this.card.location_id = card.location_id
+        this.card.location_name = card.location_name
         this.card.cost = card.cost
         this.card.max = card.max
         this.card.detail = card.detail.split(',')
@@ -208,17 +249,6 @@ export default {
     } catch (error) {
       alert(error)
     }
-  },
-  mounted() {
-    const container = document.getElementById('map') // 지도를 담을 영역의 DOM 레퍼런스
-    const options = {
-      // 지도를 생성할 때 필요한 기본 옵션
-      center: new window.kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표.
-      level: 3, // 지도의 레벨(확대, 축소 정도)
-    }
-
-    const map = new window.kakao.maps.Map(container, options) // 지도 생성 및 객체 리턴
-    console.log(map)
   },
   methods: {
     async onSubmit(evt) {
@@ -257,6 +287,31 @@ export default {
     },
     detailValidator(tag) {
       return tag.length <= 10
+    },
+    // 앱키 환경 변수로 빼야함!
+    async searchLocation() {
+      try {
+        await this.$axios.setHeader(
+          'Authorization',
+          `KakaoAK 76e7adf8ebf974025908884824504e7b`
+        )
+        const result = await this.$axios.$get(
+          `https://dapi.kakao.com/v2/local/search/keyword.json?query=${this.locationSearch.keyword}`
+        )
+        this.locationSearch.documents = result.documents
+      } catch (error) {
+        alert(error)
+      }
+    },
+    resetModal() {
+      this.locationSearch.keyword = ''
+      this.locationSearch.documents = []
+    },
+    setLocation(param) {
+      this.card.location = param.road_address_name
+      this.card.location_id = param.id
+      this.card.location_name = param.place_name
+      this.$bvModal.hide('set-location')
     },
   },
 }
