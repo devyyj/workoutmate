@@ -1,7 +1,7 @@
 const passport = require('passport')
 const JwtStrategy = require('passport-jwt').Strategy
 
-const users = require('./models/users')
+const user = require('./models/user')
 
 const cookieExtractor = function (req) {
   let token = null
@@ -21,7 +21,7 @@ const opts = {
 passport.use(
   new JwtStrategy(opts, async function (jwtPayload, done) {
     try {
-      const data = await users.findOne({ where: { id: jwtPayload.id } })
+      const data = await user.findOne({ where: { id: jwtPayload.id } })
       if (data) {
         return done(null, data)
       } else {

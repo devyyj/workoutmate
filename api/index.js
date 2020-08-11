@@ -11,8 +11,8 @@ app.use(bodyParser.json()) // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
 // Import API Routes
-app.use(require('./routes/cards'))
-app.use(require('./routes/users'))
+app.use(require('./routes/card'))
+app.use(require('./routes/user'))
 
 app.get('/', function (req, res) {
   res.send('pong!')

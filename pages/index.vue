@@ -19,7 +19,7 @@ export default {
     card,
   },
   async asyncData({ $axios }) {
-    return { items: await $axios.$get('/cards') }
+    return { items: await $axios.$get('/card') }
   },
   methods: {
     async createCard(e) {

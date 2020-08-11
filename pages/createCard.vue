@@ -7,7 +7,7 @@
         id="input-group-0"
         label="닉네임"
         label-for="input-0"
-        description="설정에서 닉네임을 변경할 수 있습니다."
+        description="'설정 > 프로필'에서 닉네임을 변경할 수 있습니다."
       >
         <b-form-input
           id="input-0"
@@ -107,8 +107,9 @@
 
       <b-form-group
         id="input-group-6"
-        label="하고 싶은 말"
+        label="본문"
         label-for="textarea-no-resize"
+        description="최대 250자까지 작성할 수 있습니다."
       >
         <b-form-textarea
           id="textarea-no-resize"
@@ -143,6 +144,7 @@
           id="location-input"
           v-model="locationSearch.keyword"
           autofocus
+          @keypress.enter="searchLocation"
         ></b-form-input>
       </b-form-group>
       <b-form-group>
@@ -227,7 +229,7 @@ export default {
     try {
       if (this.$route.query.id) {
         // 카드 수정
-        const card = await this.$axios.$get(`/cards?id=${this.$route.query.id}`)
+        const card = await this.$axios.$get(`/card?id=${this.$route.query.id}`)
         this.card.user_id = card.user_id
         this.card.nick_name = card.user.nick_name
         this.card.content = card.content
@@ -243,7 +245,7 @@ export default {
       } else {
         // 카드 생성
         const myid = await getMyid(this)
-        const data = await this.$axios.$get(`/users?id=${myid}`)
+        const data = await this.$axios.$get(`/user?id=${myid}`)
         this.card.nick_name = data.nick_name
       }
     } catch (error) {
@@ -272,9 +274,9 @@ export default {
         // 카드 생성, 수정
         if (this.$route.query.id) {
           this.card.id = this.$route.query.id
-          await this.$axios.$patch('/cards', this.card)
+          await this.$axios.$patch('/card', this.card)
         } else {
-          await this.$axios.$post('/cards', this.card)
+          await this.$axios.$post('/card', this.card)
         }
         this.$router.push('/')
       } catch (error) {
@@ -291,12 +293,13 @@ export default {
     // 앱키 환경 변수로 빼야함!
     async searchLocation() {
       try {
-        await this.$axios.setHeader(
-          'Authorization',
-          `KakaoAK 76e7adf8ebf974025908884824504e7b`
-        )
         const result = await this.$axios.$get(
-          `https://dapi.kakao.com/v2/local/search/keyword.json?query=${this.locationSearch.keyword}`
+          `https://dapi.kakao.com/v2/local/search/keyword.json?query=${this.locationSearch.keyword}`,
+          {
+            headers: {
+              Authorization: `KakaoAK 76e7adf8ebf974025908884824504e7b`,
+            },
+          }
         )
         this.locationSearch.documents = result.documents
       } catch (error) {
@@ -308,7 +311,7 @@ export default {
       this.locationSearch.documents = []
     },
     setLocation(param) {
-      this.card.location = param.road_address_name
+      this.card.location = param.road_address_name || param.address_name
       this.card.location_id = param.id
       this.card.location_name = param.place_name
       this.$bvModal.hide('set-location')

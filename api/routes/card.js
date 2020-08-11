@@ -1,30 +1,30 @@
 const { Router } = require('express')
 const m = require('moment')
 
-const cards = require('../models/cards')
-const users = require('../models/users')
+const card = require('../models/card')
+const user = require('../models/user')
 const passport = require('../passport')
 
 const router = Router()
 
 // join 개념 공부 필요!
 // 제약조건 설정하지 않기 위해 constraints: false 추가
-// users.hasMany(cards, { foreignKey: 'user_id', constraints: false })
-cards.belongsTo(users, { foreignKey: 'user_id', constraints: false })
+// user.hasMany(card, { foreignKey: 'user_id', constraints: false })
+card.belongsTo(user, { foreignKey: 'user_id', constraints: false })
 
-router.get('/cards', async function (req, res, next) {
+router.get('/card', async function (req, res, next) {
   let data
   if (req.query.id) {
     // 카드 수정
-    data = await cards.findOne({
+    data = await card.findOne({
       where: { id: req.query.id },
-      include: { model: users, required: true },
+      include: { model: user, required: true },
       order: [['id', 'DESC']],
     })
   } else {
     // 카드 검색
-    data = await cards.findAll({
-      include: { model: users },
+    data = await card.findAll({
+      include: { model: user },
       order: [['id', 'DESC']],
     })
   }
@@ -32,12 +32,12 @@ router.get('/cards', async function (req, res, next) {
 })
 
 router.post(
-  '/cards',
+  '/card',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     try {
       const data = req.body
-      await cards.create({
+      await card.create({
         user_id: req.user.id,
         content: data.content,
         time: m(`${data.date}T${data.time}+09:00`),
@@ -58,13 +58,13 @@ router.post(
 )
 
 router.patch(
-  '/cards',
+  '/card',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     try {
       const data = req.body
       if (data.user_id !== req.user.id) return res.sendStatus(401)
-      await cards.update(
+      await card.update(
         {
           user_id: data.user_id,
           content: data.content,
@@ -92,12 +92,12 @@ router.patch(
 )
 
 router.delete(
-  '/cards',
+  '/card',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     try {
       const data = req.query
-      await cards.destroy({ where: { id: data.id } })
+      await card.destroy({ where: { id: data.id } })
       res.sendStatus(200)
     } catch (error) {
       console.log(error)
@@ -114,7 +114,7 @@ router.patch(
     try {
       const data = req.body
 
-      await cards.update(
+      await card.update(
         {
           crew: data.crew,
         },

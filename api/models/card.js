@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize')
 const { sequelize } = require('./db')
 
 module.exports = sequelize.define(
-  'cards',
+  'card',
   {
     user_id: { type: DataTypes.STRING, allowNull: false },
     content: { type: DataTypes.STRING, allowNull: false },

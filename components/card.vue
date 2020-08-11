@@ -11,7 +11,7 @@
       <b-list-group flush>
         <b-list-group-item>
           <!-- <b-avatar href="#"></b-avatar> -->
-          <b-avatar></b-avatar>
+          <b-avatar :src="item.user.picture"></b-avatar>
           {{ item.user === null ? '' : item.user.nick_name }}
         </b-list-group-item>
       </b-list-group>
@@ -32,7 +32,7 @@
         </pre>
       </b-card-body>
 
-      <!-- 장소, 인원, 비용 -->
+      <!-- 장소, 시간, 인원, 비용 -->
       <b-list-group flush>
         <b-list-group-item>
           장소 :
@@ -131,7 +131,7 @@ export default {
   },
   computed: {
     createTime() {
-      return m(this.item.time).calendar()
+      return m(this.item.time).calendar({ sameElse: 'YYYY-MM-DD HH:mm' })
     },
     // 로그인 유무에 따라 수정, 삭제 버튼을 보이게 함
     // 게시글을 작성한 사람만 수정, 삭제 버튼을 볼 수 있다
@@ -184,7 +184,7 @@ export default {
         if (this.item.crew) {
           const result = this.item.crew.split(',')
           result.map(async (x) => {
-            const data = await this.$axios.$get(`/users?id=${x}`)
+            const data = await this.$axios.$get(`/user?id=${x}`)
             this.crewList.push(data.nick_name)
           })
         }
@@ -203,7 +203,7 @@ export default {
     async onDelete() {
       try {
         if (confirm('크루 카드를 삭제하시겠습니까?')) {
-          await this.$axios.$delete(`/cards?id=${this.item.id}`)
+          await this.$axios.$delete(`/card?id=${this.item.id}`)
           // 삭제한 카드는 화면에서 숨긴다
           // reload 해야 확실하지만 일단 빠르게 처리된 효과
           this.condition = false
