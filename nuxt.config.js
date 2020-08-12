@@ -35,7 +35,7 @@ export default {
       },
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
-    // appkey 환경변수로 뺄것!
+    // todo appkey 환경변수로 뺄것!
     script: [{ src: 'https://developers.kakao.com/sdk/js/kakao.min.js' }],
   },
   /*
@@ -46,7 +46,7 @@ export default {
    ** Plugins to load before mounting the App
    ** https://nuxtjs.org/guide/plugins
    */
-  plugins: [],
+  plugins: ['~/plugins/vue-croppa'],
   /*
    ** Auto import components
    ** See https://nuxtjs.org/api/configuration-components
@@ -89,5 +89,7 @@ export default {
    ** Build configuration
    ** See https://nuxtjs.org/api/configuration-build/
    */
-  build: {},
+  build: {
+    
+  },
 }

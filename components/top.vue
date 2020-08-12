@@ -18,7 +18,7 @@
             >로그아웃</b-nav-item
           >
           <b-nav-item-dropdown v-if="isLogin" text="설정" right>
-            <b-dropdown-item v-b-modal.set-nick-name href="#"
+            <b-dropdown-item v-b-modal.set-profile href="#"
               >프로필</b-dropdown-item
             >
             <b-dropdown-item href="#" @click="unlinkApp">탈퇴</b-dropdown-item>
@@ -27,10 +27,10 @@
       </b-collapse>
     </b-navbar>
     <b-modal
-      id="set-nick-name"
-      ref="modal"
+      id="set-profile"
       title="프로필을 설정하세요."
-      @show="setNickname"
+      scrollable
+      @show="showModal"
       @ok="handleOk"
     >
       <form @submit.prevent="handleSubmit">
@@ -54,12 +54,22 @@
           label-for=""
           description="PNG, JPEG 이미지만 가능합니다."
         >
-          <b-form-file
-            v-model="picture"
-            placeholder="Choose a file or drop it here..."
-            drop-placeholder="Drop file here..."
-            accept="image/*"
-          ></b-form-file>
+          <div style="text-align: center;">
+            <croppa
+              v-model="picture"
+              :width="getCroppaSize"
+              :height="getCroppaSize"
+              :prevent-white-space="true"
+              :accept="'image/*'"
+              @loading-end="handleCroppaFile"
+            >
+              <b-img
+                slot="initial"
+                crossorigin="anonymous"
+                :src="getCroppaInitImg"
+              />
+            </croppa>
+          </div>
         </b-form-group>
         <b-form-group
           label="정보"
@@ -82,14 +92,18 @@
 </template>
 
 <script>
+// todo 코드가 너무 길다 쪼갤 필요가 있을 듯!
 import { initMyid, getMyid } from '../common/common'
+import 'vue-croppa/dist/vue-croppa.css'
 
 export default {
   data() {
     return {
       nickname: '',
       infomation: '',
-      picture: null,
+      picture: {},
+      croppaSize: 200,
+      croppaInitImg: '',
     }
   },
   computed: {
@@ -107,8 +121,15 @@ export default {
     infomationState() {
       return this.infomation.length <= 250
     },
+    getCroppaSize() {
+      return this.croppaSize > 350 ? 350 : this.croppaSize
+    },
+    getCroppaInitImg() {
+      return this.croppaInitImg
+    },
   },
   async beforeMount() {
+    this.setCroppaSize()
     // init은 최초에 한번!
     window.Kakao.init('c5d4b6ee6c437fd80a93fc64ca9982f9')
     try {
@@ -121,6 +142,7 @@ export default {
       this.$store.commit('logout')
     }
   },
+
   methods: {
     // 사용자 정보 요청
     getUserInfo() {
@@ -133,7 +155,7 @@ export default {
           // 로그인 했을때 Card 버튼(수정, 삭제) 상태를 바꾼다.
           this.$nuxt.$emit('setOwner')
           this.$router.push('/')
-          await this.setNickname()
+          await this.setUserInfo()
           alert(`'${this.nickname}'님, 로그인하셨습니다.`)
         },
         fail(error) {
@@ -175,9 +197,9 @@ export default {
         return
       }
       try {
-        // 개발 모드에서는 문제 없으나 운영 서버에 배포하면 NGINX를 거치기 때문에
-        // no-cache 설정을 안하면 로그아웃 할때 캐시 삭제가 안된다.
-        // 왜 그런지 정확한 이유를 모르겠다...
+        // ? 개발 모드에서는 문제 없으나 운영 서버에 배포하면 NGINX를 거치기 때문에
+        // ? no-cache 설정을 안하면 로그아웃 할때 캐시 삭제가 안된다.
+        // ? 왜 그런지 정확한 이유를 모르겠다...
         await this.$axios.$get('/logout', {
           headers: { 'Cache-Control': 'no-cache' },
         })
@@ -211,12 +233,23 @@ export default {
         })
       }
     },
-    async setNickname() {
+    showModal() {
+      this.setUserInfo()
+    },
+    async setUserInfo() {
       try {
         const myid = await getMyid(this)
         const data = await this.$axios.$get(`/user?id=${myid}`)
         this.nickname = data.nick_name
-      } catch (error) {}
+        this.croppaInitImg = data.picture
+      } catch (error) {
+        alert(error)
+      }
+    },
+    // 회전된 이미지를 바로 잡는다
+    // 보통 orientation 값이 6인 경우
+    handleCroppaFile() {
+      this.picture.applyMetadata({ orientation: 1 })
     },
     async handleOk(bvModalEvt) {
       bvModalEvt.preventDefault()
@@ -227,16 +260,9 @@ export default {
       // 사진 업로드 처리
       try {
         // 사진을 첨부했을 때만 사진 업로드
-        if (this.picture) {
-          const form = new FormData()
-          form.append('image', this.picture)
-          await this.$axios.$post('/user/upload-image', form, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          })
-        }
+        if (this.picture) await this.uploadCroppedImage(this.picture)
       } catch (error) {
-        if (error.response.status === 400) alert('이미지 파일이 아닙니다.')
-        else alert(error)
+        alert(error)
         return
       }
       // 프로필 수정 처리
@@ -248,7 +274,7 @@ export default {
         })
         // Modal 숨김
         this.$nextTick(() => {
-          this.$bvModal.hide('set-nick-name')
+          this.$bvModal.hide('set-profile')
         })
         // 새로 고침
         this.$router.go()
@@ -256,6 +282,30 @@ export default {
         if (error.response.status === 400) alert('이미 사용중인 닉네임입니다.')
         else alert(error)
       }
+    },
+    async uploadCroppedImage(picture) {
+      try {
+        const blob = await picture.promisedBlob('image/jpeg', 1)
+        const form = new FormData()
+        form.append('image', blob)
+        await this.$axios.$post('/user/upload-image', form, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+      } catch (error) {
+        alert(error)
+      }
+    },
+    /**
+     * 윈도우 가로 크기에 따라 croppa 크기를 변경한다.
+     * 처음엔 윈도우 크기가 아니라 Modal의 크기에 따라 변경하려고 했다.
+     * 어차피 결과는 같지만... Modal은 특수해서 ref 설정이 제대로 적용안되는 거 같다.
+     * 중앙 정렬이기 때문에 -50할 경우 좌우 25픽셀씩 띄워진다.
+     */
+    setCroppaSize(abc) {
+      this.croppaSize = window.innerWidth - 50
+      window.addEventListener('resize', () => {
+        this.croppaSize = window.innerWidth - 50
+      })
     },
   },
 }
