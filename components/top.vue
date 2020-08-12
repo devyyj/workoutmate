@@ -61,13 +61,10 @@
               :height="getCroppaSize"
               :prevent-white-space="true"
               :accept="'image/*'"
+              :initial-image="getCroppaInitImg"
               @loading-end="handleCroppaFile"
+              @initial-image-loaded="test"
             >
-              <b-img
-                slot="initial"
-                crossorigin="anonymous"
-                :src="getCroppaInitImg"
-              />
             </croppa>
           </div>
         </b-form-group>
@@ -142,7 +139,6 @@ export default {
       this.$store.commit('logout')
     }
   },
-
   methods: {
     // 사용자 정보 요청
     getUserInfo() {
@@ -233,8 +229,9 @@ export default {
         })
       }
     },
-    showModal() {
-      this.setUserInfo()
+    async showModal() {
+      await this.setUserInfo()
+      // this.picture.refresh()
     },
     async setUserInfo() {
       try {
@@ -306,6 +303,9 @@ export default {
       window.addEventListener('resize', () => {
         this.croppaSize = window.innerWidth - 50
       })
+    },
+    test() {
+      console.log('call!')
     },
   },
 }

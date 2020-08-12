@@ -2,13 +2,25 @@ import { Router } from 'express'
 const fs = require('fs')
 const path = require('path')
 const multer = require('multer')
-const upload = multer({ dest: 'uploads/' })
+// const upload = multer({ dest: 'uploads/' })
 const jwt = require('jsonwebtoken')
 const AWS = require('aws-sdk')
 const proxy = require('proxy-agent')
 const user = require('../models/user')
 const config = require('../config')
 const passport = require('../passport')
+
+const storage = multer.diskStorage({
+  destination(req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename(req, file, cb) {
+    const extArray = file.mimetype.split('/')
+    const extension = extArray[extArray.length - 1]
+    cb(null, Date.now() + '.' + extension)
+  },
+})
+const upload = multer({ storage })
 
 if (process.env.PROXY) {
   AWS.config.update({
@@ -59,6 +71,7 @@ router.post(
     try {
       if (['image/png', 'image/jpeg'].includes(req.file.mimetype) === false)
         throw new Error('not image file')
+      console.log(req.file)
       // 파일 읽기
       const file = req.file.path
       const fileStream = fs.createReadStream(file)
