@@ -30,10 +30,31 @@
       id="set-profile"
       title="프로필을 설정하세요."
       scrollable
-      @show="showModal"
-      @ok="handleOk"
+      @show="setProfileHandleShow"
+      @ok="setProfileHandleOk"
     >
       <form @submit.prevent="handleSubmit">
+        <b-form-group
+          label="프로필 사진"
+          description="사진을 원하는 크기로 조정하세요."
+        >
+          <div style="text-align: center;">
+            <!-- todo croppa.. 문제가 너무 많다.. 언젠간 걷어내리.. -->
+            <croppa
+              v-model="picture"
+              :width="getCroppaSize"
+              :height="getCroppaSize"
+              :prevent-white-space="true"
+              :accept="'image/*'"
+              :initial-image="getCroppaInitImg"
+              :file-size-limit="5 * 1024 * 1024"
+              :placeholder="`클릭하여 사진을 선택하세요.`"
+              @loading-end="handleCroppaFile"
+              @file-size-exceed="handleFileSizeExceed"
+            >
+            </croppa>
+          </div>
+        </b-form-group>
         <!-- description을 multi line으로 하고 싶은데 안되는 것 같다. -->
         <b-form-group
           label="닉네임"
@@ -45,28 +66,8 @@
             v-model="nickname"
             :state="nicknameState"
             maxlength="11"
-            autofocus
             @keypress.enter.prevent
           ></b-form-input>
-        </b-form-group>
-        <b-form-group
-          label="프로필 사진"
-          label-for=""
-          description="PNG, JPEG 이미지만 가능합니다."
-        >
-          <div style="text-align: center;">
-            <croppa
-              v-model="picture"
-              :width="getCroppaSize"
-              :height="getCroppaSize"
-              :prevent-white-space="true"
-              :accept="'image/*'"
-              :initial-image="getCroppaInitImg"
-              @loading-end="handleCroppaFile"
-              @initial-image-loaded="test"
-            >
-            </croppa>
-          </div>
         </b-form-group>
         <b-form-group
           label="정보"
@@ -229,16 +230,17 @@ export default {
         })
       }
     },
-    async showModal() {
+    async setProfileHandleShow() {
       await this.setUserInfo()
-      // this.picture.refresh()
+      this.picture.refresh()
     },
     async setUserInfo() {
       try {
         const myid = await getMyid(this)
         const data = await this.$axios.$get(`/user?id=${myid}`)
         this.nickname = data.nick_name
-        this.croppaInitImg = data.picture
+        this.infomation = data.infomation
+        this.croppaInitImg = data.picture || ''
       } catch (error) {
         alert(error)
       }
@@ -248,7 +250,7 @@ export default {
     handleCroppaFile() {
       this.picture.applyMetadata({ orientation: 1 })
     },
-    async handleOk(bvModalEvt) {
+    async setProfileHandleOk(bvModalEvt) {
       bvModalEvt.preventDefault()
       // 유효성 검사
       if (!this.nicknameState) {
@@ -256,8 +258,18 @@ export default {
       }
       // 사진 업로드 처리
       try {
-        // 사진을 첨부했을 때만 사진 업로드
-        if (this.picture) await this.uploadCroppedImage(this.picture)
+        const blob = await this.picture.promisedBlob('image/jpeg', 1)
+        const form = new FormData()
+        form.append('image', blob)
+        const split = this.croppaInitImg.split('/')
+        const beforeImg = split[split.length - 1]
+        await this.$axios.$post(
+          `/user/upload-image?before=${beforeImg}`,
+          form,
+          {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          }
+        )
       } catch (error) {
         alert(error)
         return
@@ -280,18 +292,6 @@ export default {
         else alert(error)
       }
     },
-    async uploadCroppedImage(picture) {
-      try {
-        const blob = await picture.promisedBlob('image/jpeg', 1)
-        const form = new FormData()
-        form.append('image', blob)
-        await this.$axios.$post('/user/upload-image', form, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
-      } catch (error) {
-        alert(error)
-      }
-    },
     /**
      * 윈도우 가로 크기에 따라 croppa 크기를 변경한다.
      * 처음엔 윈도우 크기가 아니라 Modal의 크기에 따라 변경하려고 했다.
@@ -304,8 +304,8 @@ export default {
         this.croppaSize = window.innerWidth - 50
       })
     },
-    test() {
-      console.log('call!')
+    handleFileSizeExceed() {
+      alert('사진 크기가 5MB보다 큽니다.')
     },
   },
 }

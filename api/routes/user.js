@@ -69,27 +69,38 @@ router.post(
   upload.single('image'),
   async (req, res) => {
     try {
+      // 프로필 사진이 없을 경우
+      if (req.file === undefined) {
+        await user.update({ picture: '' }, { where: { id: req.user.id } })
+        // s3에 있는 이전 프로필 사진 삭제
+        deleteS3Object(req.query.before)
+        res.sendStatus(200)
+        return
+      }
+      // 이미지 파일이 아닌 경우
       if (['image/png', 'image/jpeg'].includes(req.file.mimetype) === false)
         throw new Error('not image file')
-      console.log(req.file)
       // 파일 읽기
       const file = req.file.path
       const fileStream = fs.createReadStream(file)
       fileStream.on('error', function (err) {
         console.log('File Error', err)
       })
-      // s3 업로드 설정
-      const uploadParams = {
-        Bucket: 'workoutmate-user-image',
-        Body: fileStream,
-        Key: path.basename(file),
-      }
+
       // 파일 업로드
-      const data = await s3.upload(uploadParams).promise()
+      const data = await s3
+        .upload({
+          Bucket: 'workoutmate-user-image',
+          Body: fileStream,
+          Key: path.basename(file),
+        })
+        .promise()
       if (data) {
         console.log('Upload Success', data.Location)
         // 서버에 보관하고 있는 파일 삭제(S3에 업로드 했으므로)
         fs.unlinkSync(file)
+        // s3에 있는 이전 프로필 사진 삭제
+        deleteS3Object(req.query.before)
         // picture 정보 업데이트
         await user.update(
           { picture: data.Location },
@@ -98,12 +109,23 @@ router.post(
       }
       res.sendStatus(200)
     } catch (error) {
-      console.log(error)
+      console.log(error.stack)
       if (error.message === 'not image file') res.sendStatus(400)
       else res.sendStatus(500)
     }
   }
 )
+
+async function deleteS3Object(key) {
+  if (key) {
+    await s3
+      .deleteObject({
+        Bucket: 'workoutmate-user-image',
+        Key: key,
+      })
+      .promise()
+  }
+}
 
 router.patch(
   '/user',

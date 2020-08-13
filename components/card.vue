@@ -10,8 +10,11 @@
     >
       <b-list-group flush>
         <b-list-group-item>
-          <!-- <b-avatar href="#"></b-avatar> -->
-          <b-avatar :src="item.user.picture"></b-avatar>
+          <b-avatar
+            href="#"
+            :src="item.user.picture"
+            @click="$bvModal.show(String(item.id) + '-profile')"
+          ></b-avatar>
           {{ item.user === null ? '' : item.user.nick_name }}
         </b-list-group-item>
       </b-list-group>
@@ -98,6 +101,20 @@
             <span class="mr-auto"> {{ crew }} </span>
           </b-list-group-item>
         </b-list-group>
+      </b-modal>
+
+      <b-modal
+        :id="String(item.id) + '-profile'"
+        scrollable
+        hide-footer
+        :title="item.user.nick_name + '님의 프로필'"
+        size="sm"
+      >
+        <b-img :src="item.user.picture" fluid-grow></b-img>
+        <hr />
+        <pre style="white-space: pre-line;">
+          {{ item.user.infomation }}
+        </pre>
       </b-modal>
     </b-card>
     <br />
